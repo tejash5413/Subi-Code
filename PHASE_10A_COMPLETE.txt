@@ -1,0 +1,71 @@
+# PHASE 10A COMPLETE (ALL COMPLETED / VERIFIED)
+
+Agent Shell:
+- AgentMode (type + service, separate from accessMode)
+- AgentModeService (globalState persistence)
+- Agent shell types (vscode-free)
+
+Tool System:
+- ToolTypes (definitions, results, errors, categories, permissions, input schema, metadata)
+- ToolRegistry (register/get/filter by mode/category, defensive copy)
+- ToolExecutor (execute, validate args, single-flight event emitter)
+- RecentToolActivity (memory-only ring, 20 entries max)
+
+Initial Read-Only Tools:
+- get_workspace_info (reuse WorkspaceService)
+- find_files (reuse ProjectFileService registry, bounded to 200 results)
+- read_file (reuse ProjectFileService read pipeline, secret-file guard, workspace containment)
+- search_text (reuse ProjectSearchService)
+
+Slash Commands:
+- SlashCommandParser (leading "/" + letter only, multi-line excluded)
+- SlashCommandRegistry (category sorting, filter, allowlist)
+- Default commands: /ask, /plan, /tools, /files, /read, /search, /context, /clear, /help (available)
+- Locked: /build, /diff, /terminal, /git, /tests (visible with locked message)
+
+Webview Protocol:
+- setAgentMode, requestSlashCommands, requestToolCatalog, executeSlashCommand, invokeTool, requestContext, cancelTool
+- agentModeChanged, slashCommands, toolCatalog, toolStarted, toolCompleted, toolFailed, slashResult, contextSummary
+
+Host Wiring:
+- SidebarProvider: agentModeService, slashCommandRegistry, toolRegistry, toolExecutor, recentToolActivity
+- handleMessage: all 7 new event types handled
+- handleReady: agentMode in init payload
+- handleSetAgentMode: writes safe mode, locks 'build', posts agentModeChanged
+- handleRequestSlashCommands / handleRequestToolCatalog / handleRequestContext
+- handleExecuteSlashCommand / handleInvokeTool / handleCancelTool
+- handleCancelChat unchanged for BYOK/managed chat isolation
+- handleClearChat unchanged
+
+UI / CSS / HTML / Webview:
+- HTML: agent mode settings group (#settings-group-title AGENT, #btn-set-agent-mode)
+- HTML: slash popup (#slash-popup, #slash-popup-list)
+- CSS: .subi-slash-popup, .subi-slash-popup-item, .subi-slash-selected, .subi-slash-locked, .subi-slash-cmd-name, .subi-slash-cmd-desc, .subi-slash-badge
+- sidebar.js: slashPopup elements, show/hide/render, input listener, message handlers, syncUIForAgentMode
+
+Tests (146 total):
+- agent/AgentMode (3 tests, pass)
+- accessModeRegression (security no-write scan + accessMode gates + vscode-free + agent mode independence + managed chat gate, 5 tests, pass)
+- slash/SlashCommandParser (10 tests, pass)
+- slash/SlashCommandRegistry (10 tests, pass)
+- tools/ToolRegistry (10 tests, pass)
+- tools/ToolExecutor (10 tests, pass)
+- readTools (security + tool behavior, 10 tests, pass)
+- All 76 existing managed tests (pass)
+- Security no-write scan (new, pass)
+
+Verified:
+- MANAGED_CHAT_ENABLED = false (unchanged)
+- accessMode unchanged (learnsmart/byok/free)
+- agentMode independent axis (ask/plan/build)
+- No file writes / WorkspaceEdit / TextEdit / applyEdit
+- No terminal / createTerminal / sendText
+- No child_process / spawn / exec / execa / node-pty
+- No git mutation / SCM / .git commands
+- No package installation
+- No deployment / publish / firebase deploy
+- No LearnSmart backend changes
+- Compile: clean
+- Tests: 148 pass, 0 fail, 0 cancelled, 0 skipped
+- All vendor files (marked, DOMPurify, KaTeX, highlight.js) present and working
+- Markdown rendering works (previous Phase 8 change preserved)

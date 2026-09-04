@@ -1,0 +1,325 @@
+﻿
+> > tsc -p ./ && node --test "out/services/managed/__tests__/*.test.js" "out/agent/__tests__/*.test.js" 
+"out/slash/__tests__/*.test.js" "out/tools/__tests__/*.test.js"
+  
+> ok 1 - isAgentMode accepts only the three values
+    ---
+> ok 2 - asAgentMode returns the value or undefined
+    ---
+> ok 3 - DEFAULT_AGENT_MODE is ask
+    ---
+> ok 4 - describeAgentMode returns availability and notes
+    ---
+> ok 5 - Phase 10A: agentMode is independent of accessMode gates
+    ---
+> ok 6 - Phase 10A: accessMode + agentMode coexist without interference
+    ---
+> ok 7 - Phase 10A: agent/ tool/ slash code contains no write/terminal/git primitives
+    ---
+> ok 8 - Phase 10A: slash command file is vscode-free
+    ---
+> ok 9 - Phase 10A: agent mode file is vscode-free
+    ---
+> ok 10 - Phase 10A: managed chat production gate remains FALSE
+    ---
+> ok 11 - Phase 10A: no WorkspaceEdit, applyEdit, fs.writeFile, createDirectory, createTerminal, child_process, exec, 
+spawn, git mutation in agent/slash/tools
+    ---
+> ok 12 - Phase 10A: MANAGED_CHAT_ENABLED remains FALSE
+    ---
+> # Subtest: learnsmart mode with guest identity still blocks BYOK
+> ok 13 - learnsmart mode with guest identity still blocks BYOK
+    ---
+> # Subtest: authenticated learnsmart blocks BYOK and allows managed
+> ok 14 - authenticated learnsmart blocks BYOK and allows managed
+    ---
+> # Subtest: byok mode permits BYOK actions
+> ok 15 - byok mode permits BYOK actions
+    ---
+> # Subtest: free and unknown modes permit BYOK and deny managed
+> ok 16 - free and unknown modes permit BYOK and deny managed
+    ---
+> ok 17 - managed actions require mode plus authenticated identity
+    ---
+> # Subtest: host BYOK handlers are access-mode gated
+> ok 18 - host BYOK handlers are access-mode gated
+    ---
+> # Subtest: webview BYOK isolation uses access mode as primary gate
+> ok 19 - webview BYOK isolation uses access mode as primary gate
+    ---
+> ok 20 - access allowed
+    ---
+> ok 21 - access disabled code passes through
+    ---
+> # Subtest: 401 maps to auth error without leaking token
+> ok 22 - 401 maps to auth error without leaking token
+    ---
+> ok 23 - 403 maps to forbidden
+    ---
+> ok 24 - 503 unavailable code maps through
+    ---
+> ok 25 - timeout maps to managed_timeout
+    ---
+> # Subtest: network failure maps safely
+> ok 26 - network failure maps safely
+    ---
+> ok 27 - malformed JSON maps to invalid response
+    ---
+> ok 28 - malformed access shape rejected
+    ---
+> ok 29 - models safe response validated
+    ---
+> # Subtest: model carrying upstreamModelId fails the whole response
+> ok 30 - model carrying upstreamModelId fails the whole response
+    ---
+> ok 31 - models blocked body surfaces disabled error
+    ---
+> ok 32 - models empty list is valid
+    ---
+> ok 33 - monthly limit configured and zero accepted
+    ---
+> ok 34 - monthly limit not-configured and malformed handled
+    ---
+> # Subtest: empty token rejected before any fetch
+> ok 35 - empty token rejected before any fetch
+    ---
+> ok 36 - FALSE gate rejects before network, history untouched
+    ---
+> ok 37 - clearHistory and abort are safe when idle
+    ---
+> ok 38 - push/getMessages round-trips defensive copies
+    ---
+> ok 39 - invalid pushes ignored
+    ---
+> ok 40 - history trims oldest-first within budgets
+    ---
+> ok 41 - histories are independent instances
+    ---
+> ok 42 - popLast and clear
+    ---
+> ok 43 - production gate is FALSE in Phase 8
+    ---
+> # Subtest: request uses modelKey only with Bearer token
+> ok 44 - request uses modelKey only with Bearer token
+    ---
+> ok 45 - delta frames stream text
+    ---
+> ok 46 - error frame throws safe code
+    ---
+> ok 47 - HTTP errors map to backend codes
+    ---
+> ok 48 - abort maps to CANCELLED
+    ---
+> # Subtest: malformed stream fails closed
+> ok 49 - malformed stream fails closed
+    ---
+> ok 50 - invalid options rejected before network
+    ---
+> ok 51 - host wires managed branch behind FALSE gate
+    ---
+> ok 52 - managed extension files contain no provider/secret/upstream references
+    ---
+> ok 53 - successful bootstrap builds allowed session
+    ---
+> ok 54 - access denial stops before models and limit
+    ---
+> # Subtest: access unavailable stops and fails closed
+> ok 55 - access unavailable stops and fails closed
+    ---
+> ok 56 - models and limit run only after access, in parallel
+    ---
+> # Subtest: models failure fails closed as unavailable
+> ok 57 - models failure fails closed as unavailable
+    ---
+> # Subtest: limit failure fails closed as unavailable
+> ok 58 - limit failure fails closed as unavailable
+    ---
+> ok 59 - empty model list stays allowed with no selection
+    ---
+> ok 60 - new bootstrap invalidates the old one
+    ---
+> ok 61 - clear during bootstrap leaves idle state
+    ---
+> # Subtest: token failure surfaces auth unavailable
+> ok 62 - token failure surfaces auth unavailable
+    ---
+> ok 63 - saved selection restored only when still eligible
+    ---
+> ok 64 - stale saved selection cleared and replaced
+    ---
+> ok 65 - setSelectedModelKey validates against current list
+    ---
+> ok 66 - clear empties managed state and getState returns copies
+    ---
+> ok 67 - selection key constant uses managed-only namespace
+    ---
+> ok 68 - webview projection carries only safe fields
+    ---
+> ok 69 - access: allowed passes through
+    ---
+> ok 70 - access: disabled code passes through
+    ---
+> ok 71 - access: disabled without code defaults closed
+    ---
+> ok 72 - access: malformed rejected
+    ---
+> ok 73 - model: valid record accepted
+    ---
+> ok 74 - model: upstreamModelId rejected, never accepted
+    ---
+> ok 75 - model: malformed records rejected
+    ---
+> ok 76 - models: array validated strictly
+    ---
+> ok 77 - limit: configured value accepted
+    ---
+> ok 78 - limit: zero means zero allowance
+    ---
+> ok 79 - limit: malformed values rejected
+    ---
+> ok 80 - limit: not-configured shape enforced
+    ---
+> # Subtest: idle/empty snapshots are fail-closed
+> ok 81 - idle/empty snapshots are fail-closed
+    ---
+> ok 82 - webview projection contains no forbidden keys
+    ---
+> ok 83 - webview projection survives hostile display names
+    ---
+> ok 84 - idle/blocked/unavailable projections stay minimal
+    ---
+> ok 85 - managed code never touches secrets, providers, or stores
+    ---
+> ok 86 - upstreamModelId appears only as a rejection guard, never stored
+    ---
+> # Subtest: managed bootstrap leaves BYOK state untouched
+> ok 87 - managed bootstrap leaves BYOK state untouched
+    ---
+> ok 88 - managed chat files never reference upstream identifiers
+    ---
+> ok 89 - parseSlashInput: leading slash with name
+    ---
+> ok 90 - parseSlashInput: only name
+    ---
+> ok 91 - parseSlashInput: empty input
+    ---
+> ok 92 - parseSlashInput: non-slash input is not a command
+    ---
+> ok 93 - parseSlashInput: embedded slash without leading slash is not a command
+    ---
+> ok 94 - parseSlashInput: escaped leading slash is not a command
+    ---
+> ok 95 - parseSlashInput: lone slash is not a command
+    ---
+> ok 96 - parseSlashInput: slash with no letters is not a command
+    ---
+> ok 97 - parseSlashInput: multi-line input is chat, not a command
+    ---
+> ok 98 - parseSlashInput: hyphenated names
+    ---
+> ok 99 - parseSlashInput: argument with leading whitespace is trimmed
+    ---
+> ok 100 - splitSlashPrefix: returns prefix and rest when present
+    ---
+> ok 101 - splitSlashPrefix: returns prefix only when no space
+    ---
+> ok 102 - splitSlashPrefix: returns null for non-commands
+    ---
+> ok 103 - register and get by name
+    ---
+> ok 104 - register and get by alias
+    ---
+> ok 105 - rejects duplicate primary name
+    ---
+> ok 106 - rejects duplicate alias
+    ---
+> ok 107 - rejects invalid name (no leading slash)
+    ---
+> ok 108 - rejects invalid alias (no leading slash)
+    ---
+> ok 109 - list returns distinct commands sorted by name
+    ---
+> ok 110 - filter is case-insensitive substring on name/alias/description
+    ---
+> ok 111 - empty filter returns all distinct commands
+    ---
+> ok 112 - default registry contains available and locked commands
+    ---
+> ok 113 - execute a known tool returns success envelope and emits events
+    ---
+> ok 114 - execute unknown tool returns TOOL_NOT_FOUND
+    ---
+> ok 115 - mode denied returns TOOL_NOT_ALLOWED
+    ---
+> ok 116 - invalid args returns TOOL_INVALID_ARGUMENTS
+    ---
+> ok 117 - tool execution error maps to INTERNAL
+    ---
+> ok 118 - ToolError thrown by tool maps to its code
+    ---
+> ok 119 - cancel is a no-op when idle
+    ---
+> ok 120 - summary is computed for known tools
+    ---
+> ok 121 - summary for find_files reflects count
+    ---
+> ok 122 - summary for read_file reflects path and size
+    ---
+> ok 123 - register and get a tool by name
+    ---
+> ok 124 - register rejects duplicates
+    ---
+> ok 125 - register rejects missing name
+    ---
+> ok 126 - listMetadata returns sorted, defensive copy
+    ---
+> ok 127 - listByCategory filters
+    ---
+> ok 128 - listForMode filters by mode and excludes locked
+    ---
+> ok 129 - resolveForInvocation: unknown tool
+    ---
+> ok 130 - resolveForInvocation: locked tool
+    ---
+> ok 131 - resolveForInvocation: mode not allowed
+    ---
+> ok 132 - resolveForInvocation: success
+    ---
+> ok 133 - isSecretFilePath blocks env, pem, key, service account json
+    ---
+> ok 134 - isSecretFilePath does not block normal source files
+    ---
+> ok 135 - read_file: secret file is rejected before any read
+    ---
+> ok 136 - read_file: missing file returns FILE_NOT_FOUND
+    ---
+> ok 137 - read_file: binary file returns BINARY_FILE
+    ---
+> ok 138 - read_file: too-large file returns FILE_TOO_LARGE
+    ---
+> ok 139 - read_file: success returns content with bounded preview
+    ---
+> ok 140 - find_files: returns bounded count and items
+    ---
+> ok 141 - find_files: filter narrows results case-insensitively
+    ---
+> ok 142 - find_files: throws WORKSPACE_NOT_OPEN when no files
+    ---
+> ok 143 - search_text: rejects short queries
+    ---
+> ok 144 - search_text: rejects invalid mode
+    ---
+> ok 145 - search_text: delegates to ProjectSearchService (content)
+    ---
+> ok 146 - search_text: delegates to ProjectSearchService (files)
+    ---
+> ok 147 - get_workspace_info: returns safe summary, no absolute path
+    ---
+> ok 148 - get_workspace_info: throws WORKSPACE_NOT_OPEN when no workspace
+    ---
+> # tests 148
+  # suites 0
+> # fail 0
+  # cancelled 0
+
+
