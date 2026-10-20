@@ -14,9 +14,9 @@ The product version is **2.0.0**. This repository contains the complete SubiCode
 
 | Interface | Targets | Qualification status |
 | --- | --- | --- |
-| CLI | Windows, macOS, Linux; x64 and ARM64 | All six native npm installation checks passed; public registry publication and availability verification in progress |
-| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64 2.0.0 installed; native host and terminal reuse passed; other targets pending CI |
-| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64 2.0.0 installed and startup verified; unsigned; other native targets pending CI |
+| CLI | Windows, macOS, Linux; x64 and ARM64 | Published 2.0.0 on npm; all seven package checksums verified; all six native installation checks passed |
+| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64/ARM64 VSIX downloads published; native host and terminal reuse passed; macOS/Linux checks pending |
+| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64/ARM64 installers published and qualified; unsigned; macOS/Linux downloads pending native checks |
 | Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
 
 See the [Windows 2.0.0 verification](docs/subicode-windows-2.0.0-verification.md) for current evidence and the [release readiness audit](docs/subicode-release-readiness-2026-10-20.md) for remaining release gates. Live account billing, provider permissions, signing and native platform checks are separate from source type checks.
@@ -39,18 +39,18 @@ Provider-hosted free models may be restricted to that provider's own client. Inc
 2. Select your operating system and CPU architecture. Verify the supplied SHA-256 checksum when available.
 3. **Desktop:** run the matching Windows installer, open the macOS package, or install the Linux package.
 4. **VS Code:** use **Extensions → … → Install from VSIX**, then choose the matching VSIX. Open the Command Palette and run **Open Subi Code**.
-5. **CLI:** install the matching packaged npm tarball with Node.js available:
+5. **CLI:** with Node.js 22 or newer, run this in CMD, PowerShell or your Unix terminal:
 
 ```sh
-npm install -g /path/to/downloaded-subicode-cli-package.tgz
+npm install -g @subicodeagent/subi-cli@2.0.0
 subi --version
 cd /path/to/your/project
 subi
 ```
 
-The CLI tarball contains a native executable; use the package for your OS and CPU. These instructions do not imply an npm registry or Marketplace publication. Those links will be added when publication is verified.
+npm selects the correct native executable for Windows, macOS or glibc Linux on x64 or ARM64. Keep optional dependencies enabled. Desktop installers and VSIX files are separate downloads; a VS Code Marketplace listing is not announced.
 
-The public `npm install -g @subicodeagent/subi-cli` launcher and six native packages are prepared under [sdks/npm](sdks/npm). All six native installation checks passed. Registry publication and availability verification are in progress; see the [npm verification record](docs/subicode-npm-2.0.0-verification.md). Maintainers should follow the [npm publishing guide](docs/npm-publishing.md).
+All seven npm packages are public and their SHA-512 checksums match the qualified candidate. See the [npm verification record](docs/subicode-npm-2.0.0-verification.md) and [npm publishing guide](docs/npm-publishing.md).
 
 ## First session
 

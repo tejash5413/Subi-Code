@@ -1,6 +1,6 @@
 # SubiCode npm 2.0.0 verification
 
-Publication status: **pending registry verification**.
+Publication status: **all seven packages published and registry checksums verified**, 20 October 2026.
 
 The requested public package is `@subicodeagent/subi-cli`, published by the authenticated `subicodeagent` npm account. It uses the matching native optional dependency for Windows, macOS, or glibc-based Linux on x64 or ARM64.
 
@@ -16,8 +16,15 @@ The requested public package is `@subicodeagent/subi-cli`, published by the auth
 
 ## Publication and installation
 
-The six native packages must be published before the public launcher. A successful registry lookup and a clean public-registry global installation are still required before announcing the install command as available.
+All six native packages and `@subicodeagent/subi-cli@2.0.0` are public with `latest` set to 2.0.0. Public registry SHA-512 integrity values match the qualified archives for every package, including the Unix-packed public launcher.
 
-The initial publish attempt with npm 10 was rejected because publishing required 2FA. npm 11.21.1 provides the interactive browser approval flow. After the account holder approved that flow, npm accepted `@subicodeagent/subi-cli-win32-x64@2.0.0` for processing. The remaining native packages and public launcher are still pending. No recovery code is required by this workflow.
+The public launcher was installed on Windows x64 after removing the older local `@learnsmart/subi-cli` launcher that occupied the same `subi` command. `subi --version` reported `subi v2.0.0`; `subi mcp add --help` passed. The installed native executable SHA-256 is `ee1b4251c49641c45d6736ee999cfc2eb4f09fc49ba1d940a35a97b4ce95fb67`, matching qualification.
+
+```sh
+npm install -g @subicodeagent/subi-cli@2.0.0
+subi --version
+```
+
+The account holder completed npm 11 browser approvals. Some uploads encountered connection resets or an expired approval; resuming skipped already published identical packages. Processing finished before availability and checksum verification were recorded. No recovery code was used.
 
 Desktop installers, the VS Code Marketplace listing, live account billing, provider access, signing/notarization, and real-device pairing have separate release gates. This npm verification does not qualify those workflows.
