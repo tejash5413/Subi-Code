@@ -19,6 +19,7 @@ const it = testEffect(NodeFileSystem.layer)
 
 test("managed service ports are stable per installation channel", () => {
   expect(ServiceConfig.defaultPort("latest", "linux")).toBe(0xc5b1)
+  expect(ServiceConfig.defaultPort("prod", "linux")).toBe(0xc5b1)
   expect(ServiceConfig.defaultPort("dev", "linux")).toBe(0xc5b1)
   expect(ServiceConfig.defaultPort("beta", "linux")).toBe(0xc5b1)
   expect(ServiceConfig.defaultPort("next", "linux")).toBe(0xc5b1)
@@ -37,6 +38,7 @@ test("managed service ports are stable per installation channel", () => {
 
 test("managed service ports on Windows stay below the range Windows reserves", () => {
   expect(ServiceConfig.defaultPort("latest", "win32")).toBe(0xc5b1 - 4096)
+  expect(ServiceConfig.defaultPort("prod", "win32")).toBe(0xc5b1 - 4096)
   expect(ServiceConfig.defaultPort("dev", "win32")).toBe(0xc5b1 - 4096)
   expect(ServiceConfig.defaultPort("local", "win32")).toBe(0xc5b2 - 4096)
   const ports = Array.from({ length: 200 }, (_, index) => ({
@@ -201,6 +203,7 @@ test("service config manages environment variables", async () => {
 
 test("service filenames share release channels and identify preview channels", () => {
   expect(ServiceConfig.filename("latest")).toBe("service.json")
+  expect(ServiceConfig.filename("prod")).toBe("service.json")
   expect(ServiceConfig.filename("dev")).toBe("service.json")
   expect(ServiceConfig.filename("beta")).toBe("service.json")
   expect(ServiceConfig.filename("next")).toBe("service.json")

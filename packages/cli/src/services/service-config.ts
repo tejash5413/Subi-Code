@@ -39,7 +39,8 @@ const decodeLegacy = Schema.decodeUnknownOption(
 const decodeRegistration = Schema.decodeUnknownEffect(Schema.fromJsonString(Service.Info))
 
 export function filename(channel = OPENCODE_CHANNEL) {
-  if (channel === "latest" || channel === "dev" || channel === "beta" || channel === "next") return "service.json"
+  if (channel === "latest" || channel === "prod" || channel === "dev" || channel === "beta" || channel === "next")
+    return "service.json"
   return `service-${channel.replace(/[^a-zA-Z0-9._-]/g, "-")}.json`
 }
 
@@ -55,7 +56,8 @@ export function defaultPort(channel = OPENCODE_CHANNEL, platform = process.platf
 function channelPort(channel: string) {
   // Subi and OpenCode have separate registrations and can run simultaneously.
   // Do not bind OpenCode's default port (0xC0DE / 0xB0DE on Windows).
-  if (channel === "latest" || channel === "dev" || channel === "beta" || channel === "next") return 0xc5b1
+  if (channel === "latest" || channel === "prod" || channel === "dev" || channel === "beta" || channel === "next")
+    return 0xc5b1
   if (channel === "local") return 0xc5b2
   return 10_000 + (Number.parseInt(Hash.fast(channel).slice(0, 8), 16) % 50_000)
 }
