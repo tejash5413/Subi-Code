@@ -43,3 +43,4 @@ tsconfig.tsbuildinfo
 *.vsix
 *.log
 /sdks/vscode/out/
+.bun-cache/
