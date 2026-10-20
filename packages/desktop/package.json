@@ -6,7 +6,8 @@
   "license": "MIT",
   "homepage": "https://stlearnsmart.in/subi-code",
   "author": {
-    "name": "LearnSmart"
+    "name": "LearnSmart",
+    "email": "tejash5413@gmail.com"
   },
   "scripts": {
     "typecheck": "tsgo -b",
@@ -65,5 +66,6 @@
     "@lydell/node-pty-linux-x64": "1.2.0-beta.12",
     "@lydell/node-pty-win32-arm64": "1.2.0-beta.12",
     "@lydell/node-pty-win32-x64": "1.2.0-beta.12"
-  }
+  },
+  "description": "SubiCode coding agent for desktop"
 }
