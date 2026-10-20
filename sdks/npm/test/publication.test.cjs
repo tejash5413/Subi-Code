@@ -5,6 +5,29 @@ const os = require("node:os")
 const path = require("node:path")
 const { spawnSync } = require("node:child_process")
 const { test } = require("node:test")
+const { gzipSync } = require("node:zlib")
+
+function launcherArchive(mode, readme = "launcher fixture") {
+  const chunks = []
+  for (const [name, content] of [
+    ["package/LICENSE", "license fixture"],
+    ["package/bin/subi.cjs", "#!/usr/bin/env node\n"],
+    ["package/package.json", JSON.stringify({ name: "@subicodeagent/subi-cli", version: "2.0.0" })],
+    ["package/README.md", readme],
+  ]) {
+    const bytes = Buffer.from(content)
+    const header = Buffer.alloc(512)
+    header.write(name)
+    header.write(`${(name.endsWith(".cjs") ? mode : 0o644).toString(8).padStart(7, "0")}\0`, 100)
+    header.write(`${bytes.length.toString(8).padStart(11, "0")}\0`, 124)
+    header.fill(32, 148, 156)
+    header[156] = 48
+    const sum = header.reduce((total, byte) => total + byte, 0)
+    header.write(`${sum.toString(8).padStart(6, "0")}\0 `, 148)
+    chunks.push(header, bytes, Buffer.alloc((512 - (bytes.length % 512)) % 512))
+  }
+  return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
+}
 
 test("publication preflight rejects missing qualification and modified packages", async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "subicode-npm-publication-"))
@@ -15,7 +38,10 @@ test("publication preflight rejects missing qualification and modified packages"
       await fs.mkdir(path.join(directory, "packages"), { recursive: true })
       const entries = []
       for (const name of [`@subicodeagent/subi-cli-${platform}`, "@subicodeagent/subi-cli"]) {
-        const bytes = Buffer.from(`fixture ${name}`)
+        const bytes =
+          name === "@subicodeagent/subi-cli"
+            ? launcherArchive(platform.startsWith("win32") ? 0o644 : 0o755)
+            : Buffer.from(`fixture ${name}`)
         const item = {
           name,
           filename: `${name.replace(/^@/, "").replace("/", "-")}-2.0.0.tgz`,
@@ -45,6 +71,24 @@ test("publication preflight rejects missing qualification and modified packages"
     assert.match(valid.stdout, /Preflight only/)
     const file = path.join(root, "win32-x64/packages/qualification.json")
     const q = JSON.parse(await fs.readFile(file, "utf8"))
+    const wrapperFile = path.join(root, "win32-x64", q.npm.wrapper.filename)
+    const original = await fs.readFile(wrapperFile)
+    const different = launcherArchive(0o644, "different launcher contents")
+    await fs.writeFile(wrapperFile, different)
+    await fs.writeFile(
+      file,
+      JSON.stringify({
+        ...q,
+        npm: {
+          ...q.npm,
+          wrapper: { ...q.npm.wrapper, integrity: `sha512-${createHash("sha512").update(different).digest("base64")}` },
+        },
+      }),
+    )
+    const mismatch = run()
+    assert.notEqual(mismatch.status, 0)
+    assert.match(mismatch.stderr, /different public launcher contents/)
+    await fs.writeFile(wrapperFile, original)
     await fs.writeFile(file, JSON.stringify({ ...q, channel: "dev" }))
     const development = run()
     assert.notEqual(development.status, 0)

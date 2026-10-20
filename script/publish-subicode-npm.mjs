@@ -3,6 +3,7 @@ import { createHash } from "node:crypto"
 import { readFile } from "node:fs/promises"
 import path from "node:path"
 import { spawn } from "node:child_process"
+import { gunzipSync } from "node:zlib"
 
 const root = path.resolve(process.argv[2])
 const publish = process.argv.includes("--publish")
@@ -10,6 +11,7 @@ const platforms = ["win32-x64", "win32-arm64", "darwin-x64", "darwin-arm64", "li
 const expected = JSON.parse(await readFile(new URL("../sdks/npm/package.json", import.meta.url), "utf8"))
 const records = []
 let wrapper
+let launcher
 for (const platform of platforms) {
   const directory = path.join(root, platform)
   const q = JSON.parse(await readFile(path.join(directory, "packages/qualification.json"), "utf8"))
@@ -26,17 +28,51 @@ for (const platform of platforms) {
     assert.equal(item.name, name)
     assert.equal(item.filename, `${name.replace(/^@/, "").replace("/", "-")}-${expected.version}.tgz`)
     const file = path.join(directory, item.filename)
-    const integrity = `sha512-${createHash("sha512")
-      .update(await readFile(file))
-      .digest("base64")}`
+    const bytes = await readFile(file)
+    const integrity = `sha512-${createHash("sha512").update(bytes).digest("base64")}`
     assert.equal(item.integrity, integrity, `${platform}: ${kind} package changed after qualification`)
     const record = { ...item, file }
     if (kind === "native") records.push(record)
     if (kind === "wrapper") {
-      if (wrapper) assert.equal(wrapper.integrity, integrity, "Platform jobs used different public launchers")
+      const contents = launcherContents(bytes)
+      if (launcher) assert.equal(launcher, contents, "Platform jobs used different public launcher contents")
+      launcher = contents
       wrapper = record
     }
   }
+}
+
+function launcherContents(bytes) {
+  // Windows npm packs bin files as 0644; Unix packs them as 0755. Compare file bytes,
+  // while the qualification checksum above still authenticates each complete archive.
+  const tar = gunzipSync(bytes)
+  const entries = new Map()
+  for (let offset = 0; offset < tar.length && tar[offset] !== 0; ) {
+    const name = tar
+      .subarray(offset, offset + 100)
+      .toString()
+      .replace(/\0.*$/s, "")
+    const size = Number.parseInt(tar.subarray(offset + 124, offset + 136).toString(), 8)
+    assert.ok(Number.isSafeInteger(size) && size >= 0 && offset + 512 + size <= tar.length, "Invalid launcher archive")
+    assert.ok(tar[offset + 156] === 0 || tar[offset + 156] === 48, "Launcher archive must contain regular files")
+    assert.ok(!entries.has(name), "Duplicate launcher archive entry")
+    entries.set(name, tar.subarray(offset + 512, offset + 512 + size))
+    offset += 512 + Math.ceil(size / 512) * 512
+  }
+  assert.deepEqual([...entries.keys()].sort(), [
+    "package/LICENSE",
+    "package/README.md",
+    "package/bin/subi.cjs",
+    "package/package.json",
+  ])
+  const manifest = JSON.parse(entries.get("package/package.json").toString())
+  assert.equal(manifest.name, expected.name)
+  assert.equal(manifest.version, expected.version)
+  return JSON.stringify(
+    [...entries]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, body]) => [name, createHash("sha512").update(body).digest("hex")]),
+  )
 }
 console.log(`Verified six native npm packages and the identical public launcher for ${expected.version}.`)
 if (!publish) {

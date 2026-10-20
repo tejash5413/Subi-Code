@@ -22,7 +22,7 @@ All seven packages use the same exact version. npm chooses the compatible native
 1. Run the source checks and npm launcher tests (`npm test` from `sdks/npm`).
 2. Push the candidate to `dev` to run **SubiCode native packages**. The workflow builds production-channel binaries on all six native hosts and tests a clean global npm installation through a disposable loopback registry. It also runs the desktop and extension checks separately.
 3. Inspect all six `subicode-npm-<platform>` artifacts. Each contains a native tarball, the public launcher tarball, and `packages/qualification.json`. A successful npm qualification is required for every target, even if later desktop tests fail.
-4. Keep the candidate source commit unchanged for publication. Qualifications record that commit and the tarballs' SHA-512 integrity. Launcher text is normalized to LF so every host packs the same launcher.
+4. Keep the candidate source commit unchanged for publication. Qualifications record that commit and the tarballs' SHA-512 integrity. Launcher text is normalized to LF. Windows and Unix archive permissions differ, so preflight also compares the exact contents of all four launcher files across hosts.
 
 Local preflight, with the six artifact folders arranged under `artifacts/npm`, is read-only:
 
