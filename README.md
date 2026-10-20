@@ -14,7 +14,7 @@ The product version is **2.0.0**. This repository contains the complete SubiCode
 
 | Interface | Targets | Qualification status |
 | --- | --- | --- |
-| CLI | Windows, macOS, Linux; x64 and ARM64 | Windows x64 2.0.0 installed and verified; other native targets pending CI |
+| CLI | Windows, macOS, Linux; x64 and ARM64 | All six native npm installation checks passed; public registry publication and availability verification in progress |
 | VS Code extension | Platform-specific VSIX for the same six targets | Windows x64 2.0.0 installed; native host and terminal reuse passed; other targets pending CI |
 | Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64 2.0.0 installed and startup verified; unsigned; other native targets pending CI |
 | Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
@@ -50,7 +50,7 @@ subi
 
 The CLI tarball contains a native executable; use the package for your OS and CPU. These instructions do not imply an npm registry or Marketplace publication. Those links will be added when publication is verified.
 
-The public `npm install -g @subicodeagent/subi-cli` launcher and six native packages are prepared under [sdks/npm](sdks/npm). Registry publication is pending native qualification and publishing access. Maintainers should follow the [npm publishing guide](docs/npm-publishing.md).
+The public `npm install -g @subicodeagent/subi-cli` launcher and six native packages are prepared under [sdks/npm](sdks/npm). All six native installation checks passed. Registry publication and availability verification are in progress; see the [npm verification record](docs/subicode-npm-2.0.0-verification.md). Maintainers should follow the [npm publishing guide](docs/npm-publishing.md).
 
 ## First session
 
