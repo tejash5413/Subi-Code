@@ -95,15 +95,18 @@ if (!publish) {
     }
   }
   assert.ok(npm, "The Node.js installation must include npm")
-  async function run(args) {
+  async function run(args, interactive = false) {
     return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, [npm, ...args], { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] })
+      const child = spawn(process.execPath, [npm, ...args], {
+        windowsHide: true,
+        stdio: interactive ? "inherit" : ["ignore", "pipe", "pipe"],
+      })
       let stdout = ""
       let stderr = ""
-      child.stdout.on("data", (data) => {
+      child.stdout?.on("data", (data) => {
         stdout += data
       })
-      child.stderr.on("data", (data) => {
+      child.stderr?.on("data", (data) => {
         stderr += data
       })
       child.once("error", reject)
@@ -128,14 +131,17 @@ if (!publish) {
       continue
     }
     if (!/E404|404 Not Found/.test(existing.stderr)) throw new Error(`Registry check failed: ${existing.stderr}`)
-    const result = await run([
-      "publish",
-      item.file,
-      "--access=public",
-      "--tag=latest",
-      "--registry=https://registry.npmjs.org/",
-      ...(process.argv.includes("--provenance") ? ["--provenance"] : []),
-    ])
+    const result = await run(
+      [
+        "publish",
+        item.file,
+        "--access=public",
+        "--tag=latest",
+        "--registry=https://registry.npmjs.org/",
+        ...(process.argv.includes("--provenance") ? ["--provenance"] : []),
+      ],
+      Boolean(process.stdin.isTTY),
+    )
     if (result.code !== 0) throw new Error(`Publish failed for ${item.name}: ${result.stderr}`)
     console.log(`Published: ${item.name}@${expected.version}`)
   }
