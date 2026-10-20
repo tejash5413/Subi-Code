@@ -268,6 +268,15 @@ try {
   const extensionPath = path.join(extensionDirectory, installedExtension.name)
   const extensionBinary = path.join(extensionPath, "bin", platform, process.platform === "win32" ? "subi.exe" : "subi")
   console.log(`Qualification: installed extension binary mode ${((await stat(extensionBinary)).mode & 0o777).toString(8)}`)
+  const workspace = path.join(fixture, "workspace")
+  const vscodeLogs = path.join(output, "vscode-logs")
+  await mkdir(workspace)
+  await mkdir(vscodeLogs, { recursive: true })
+  // Actions owns the host-wide deadline. Preserve completed checks and an explicit
+  // failure if that deadline stops VS Code before the runner can report a result.
+  delete result.extensionExecution
+  result.failure = "VS Code extension host qualification did not complete"
+  await writeFile(qualificationFile, JSON.stringify({ ...result, fixture }, null, 2) + "\n")
   await vscode.runTests({
     vscodeExecutablePath: code,
     extensionDevelopmentPath:
@@ -280,15 +289,20 @@ try {
         : path.join(root, "sdks/vscode/out/test/runner.js"),
     extensionTestsEnv: env,
     launchArgs: [
-      ...args.map((arg) => (process.platform === "win32" && arg.includes(" ") ? `"${arg}"` : arg)),
+      ...args,
+      "--log",
+      "trace",
+      "--logsPath",
+      vscodeLogs,
       "--no-sandbox",
       "--disable-gpu",
       "--disable-extensions",
       "--skip-welcome",
       "--disable-workspace-trust",
-      fixture,
-    ],
+      workspace,
+    ].map((arg) => (process.platform === "win32" && arg.includes(" ") ? `"${arg}"` : arg)),
   })
+  delete result.failure
   result.extensionExecution = "passed: packaged VSIX installation, bundled CLI startup and terminal reuse"
 } catch (error) {
   result.failure = String(error)

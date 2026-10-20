@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { mkdtemp, mkdir, writeFile, readFile } from "node:fs/promises"
+import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import { createHash } from "node:crypto"
@@ -9,6 +9,33 @@ import { fileURLToPath } from "node:url"
 
 const script = fileURLToPath(new URL("../../../script/publish-subicode-desktop.mjs", import.meta.url))
 const platforms = ["win32-x64", "win32-arm64", "darwin-x64", "darwin-arm64", "linux-x64", "linux-arm64"]
+test("Linux x86_64 AppImage and RPM files survive staging and release preflight", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "desktop-linux-formats-"))
+  try {
+    const candidate = path.join(root, "candidate")
+    await mkdir(path.join(candidate, "desktop"), { recursive: true })
+    await mkdir(path.join(candidate, "packages"))
+    await writeFile(path.join(candidate, "packages/qualification.json"), JSON.stringify({
+      version: "2.0.0", channel: "prod", platform: "linux-x64", npm: { sourceCommit: "1".repeat(40) },
+      nativeExecution: "passed: CLI", desktopExecution: "passed: desktop", extensionExecution: "passed: extension",
+    }))
+    const names = ["subi-desktop-linux-x86_64.AppImage", "subi-desktop-linux-x86_64.rpm", "subi-desktop-linux-amd64.deb"]
+    for (const name of names) await writeFile(path.join(candidate, "desktop", name), name)
+    await writeFile(path.join(candidate, "subicode-linux-x64.vsix"), "extension")
+    const destination = path.join(root, "downloads/subicode-downloads-linux-x64")
+    const prepare = fileURLToPath(new URL("../../../script/prepare-desktop-downloads.mjs", import.meta.url))
+    const staged = spawnSync(process.execPath, [prepare, candidate, destination], { encoding: "utf8" })
+    assert.equal(staged.status, 0, staged.stderr)
+    const result = spawnSync(process.execPath, [script, path.join(root, "downloads")], {
+      encoding: "utf8", env: { ...process.env, SUBICODE_DESKTOP_PLATFORMS: "linux-x64" },
+    })
+    assert.equal(result.status, 0, result.stderr)
+    const manifest = JSON.parse(await readFile(path.join(root, "downloads/subicode-release.json"), "utf8"))
+    assert.deepEqual(manifest.downloads.map(item => item.filename).sort(), [...names, "subicode-linux-x64.vsix"].sort())
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
 async function fixture(mutation) {
   const root = await mkdtemp(path.join(tmpdir(), "desktop-download-contract-"))
   for (const target of platforms) {

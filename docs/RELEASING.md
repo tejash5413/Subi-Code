@@ -52,3 +52,8 @@ installer bytes cannot be overwritten. Each addition refreshes the combined
 `subicode-release.json` and `SHA256SUMS.txt` records and names exactly the
 qualified targets in the release notes. Unsigned/not-notarized limitations
 remain explicit. npm CLI availability is independent of desktop availability.
+
+See [Windows publisher signing](WINDOWS_SIGNING.md) for the signing identity,
+build integration, signature verification and publication requirements. The
+current public installers remain unsigned until a verified signing identity
+is configured and the signed output passes verification.

@@ -15,7 +15,7 @@ const [platform, arch] = qualification.platform.split("-")
 assert.ok(["win32", "darwin", "linux"].includes(platform) && ["x64", "arm64"].includes(arch))
 await mkdir(destination, { recursive: true })
 const files = (await readdir(path.join(output, "desktop"))).filter(name =>
-  /^subi-desktop-[a-z0-9-]+\.(exe|dmg|zip|AppImage|deb|rpm)$/.test(name),
+  /^subi-desktop-[a-z0-9_-]+\.(exe|dmg|zip|AppImage|deb|rpm)$/.test(name),
 )
 assert.ok(files.length > 0, "No installers found")
 const assets = files.map(name => ({ name, source: path.join(output, "desktop", name), product: "desktop" }))

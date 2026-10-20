@@ -26,7 +26,7 @@ for (const platform of platforms) {
     assert.equal(`${item.platform}-${item.arch}`, platform)
     assert.equal(item.version, "2.0.0")
     assert.ok(["desktop", "vscode"].includes(item.product))
-    assert.ok(/^(subi-desktop-[a-z0-9-]+\.(exe|dmg|zip|AppImage|deb|rpm)|subicode-[a-z0-9-]+\.vsix)$/.test(item.filename))
+    assert.ok(/^(subi-desktop-[a-z0-9_-]+\.(exe|dmg|zip|AppImage|deb|rpm)|subicode-[a-z0-9-]+\.vsix)$/.test(item.filename))
     assert.ok(!names.has(item.filename), "Duplicate release filename")
     names.add(item.filename)
     const file = path.join(directory, item.filename)

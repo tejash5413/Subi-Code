@@ -15,8 +15,8 @@ The product version is **2.0.0**. This repository contains the complete SubiCode
 | Interface | Targets | Qualification status |
 | --- | --- | --- |
 | CLI | Windows, macOS, Linux; x64 and ARM64 | Published 2.0.0 on npm; all seven package checksums verified; all six native installation checks passed |
-| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64/ARM64 VSIX downloads published; native host and terminal reuse passed; macOS/Linux checks pending |
-| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64/ARM64 installers published and qualified; unsigned; macOS/Linux downloads pending native checks |
+| VS Code extension | Platform-specific VSIX for the same six targets | Windows and Linux x64/ARM64 downloads published; native host and terminal reuse passed; macOS checks pending |
+| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows and Linux x64/ARM64 packages published and qualified; unsigned; macOS downloads pending native checks |
 | Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
 
 See the [Windows 2.0.0 verification](docs/subicode-windows-2.0.0-verification.md) for current evidence and the [release readiness audit](docs/subicode-release-readiness-2026-10-20.md) for remaining release gates. Live account billing, provider permissions, signing and native platform checks are separate from source type checks.

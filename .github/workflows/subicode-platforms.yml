@@ -125,6 +125,7 @@ jobs:
           path: |
             artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/packages/qualification.json
             artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/desktop-qualification.png
+            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/vscode-logs/
           if-no-files-found: error
           retention-days: 14
       - name: Prepare qualified public download files
