@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process"
 import { createRequire } from "node:module"
-import { access, mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises"
+import { access, mkdtemp, mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import net from "node:net"
@@ -102,11 +102,21 @@ async function closeDesktop() {
 
   if (!application) return
   console.log("Qualification: closing the disposable desktop and stopping its service")
+  const registrations = (await readdir(fixture, { recursive: true, withFileTypes: true }))
+    .filter(entry => entry.isFile() && entry.name === "service.json")
+    .map(entry => path.join(entry.parentPath, entry.name))
+  const registration = (await Promise.all(registrations.map(async file => {
+    const record = JSON.parse(await readFile(file, "utf8"))
+    return record.url && new URL(record.url).port === String(servicePort) ? file : undefined
+  }))).find(Boolean)
+  if (!registration) throw new Error("Disposable desktop service registration not found")
   // The service can hold inherited stdio open on POSIX. Stop it while Playwright
   // closes Electron rather than waiting for process exit before stopping it.
+  // Onboarding and the login shell can change XDG roots; the matching port proves
+  // which registration belongs to this run. Never guess its state directory.
   await Promise.all([
     application.close(),
-    run(cli, ["service", "stop"], { ...env, XDG_STATE_HOME: path.join(fixture, ".local/state") }),
+    run(cli, ["service", "stop"], { ...env, XDG_STATE_HOME: path.dirname(path.dirname(registration)) }),
   ])
 }
 
