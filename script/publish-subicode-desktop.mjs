@@ -1,0 +1,78 @@
+import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
+import { readFile, writeFile } from "node:fs/promises"
+import path from "node:path"
+import { spawnSync } from "node:child_process"
+
+const root = path.resolve(process.argv[2])
+const platforms = ["win32-x64", "win32-arm64", "darwin-x64", "darwin-arm64", "linux-x64", "linux-arm64"]
+const repo = "tejash5413/Subi-Code"
+const assets = []
+const commits = new Set()
+const names = new Set()
+for (const platform of platforms) {
+  const directory = path.join(root, `subicode-downloads-${platform}`)
+  const record = JSON.parse(await readFile(path.join(directory, `downloads-${platform}.json`), "utf8"))
+  for (const field of ["nativeExecution", "desktopExecution", "extensionExecution"])
+    assert.match(record[field] ?? "", /^passed:/, `${platform}: ${field} missing`)
+  assert.match(record.sourceCommit, /^[a-f0-9]{40}$/)
+  commits.add(record.sourceCommit)
+  assert.ok(record.downloads.some(item => item.product === "desktop"))
+  assert.ok(record.downloads.some(item => item.product === "vscode"))
+  for (const item of record.downloads) {
+    assert.equal(`${item.platform}-${item.arch}`, platform)
+    assert.equal(item.version, "2.0.0")
+    assert.ok(["desktop", "vscode"].includes(item.product))
+    assert.ok(/^(subi-desktop-[a-z0-9-]+\.(exe|dmg|zip|AppImage|deb|rpm)|subicode-[a-z0-9-]+\.vsix)$/.test(item.filename))
+    assert.ok(!names.has(item.filename), "Duplicate release filename")
+    names.add(item.filename)
+    const file = path.join(directory, item.filename)
+    const bytes = await readFile(file)
+    assert.equal(bytes.length, item.size, `${item.filename}: size changed`)
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), item.sha256, `${item.filename}: checksum changed`)
+    const url = `https://github.com/${repo}/releases/download/v2.0.0/${item.filename}`
+    assert.equal(item.url, url)
+    assets.push({ file, download: { ...item, signed: false } })
+  }
+}
+assert.equal(commits.size, 1, "Desktop packages must use the same source commit")
+const manifest = { version: "2.0.0", cli: {
+  available: true, nodeMinimum: 22,
+  command: "npm install -g @subicodeagent/subi-cli@2.0.0", platforms,
+}, downloads: assets.map(item => item.download) }
+const manifestFile = path.join(root, "subicode-release.json")
+const checksumFile = path.join(root, "SHA256SUMS.txt")
+await writeFile(manifestFile, JSON.stringify(manifest, null, 2) + "\n")
+await writeFile(checksumFile, assets.map(({ download }) => `${download.sha256}  ${download.filename}`).join("\n") + "\n")
+console.log(`Verified ${assets.length} desktop and VSIX downloads across six native platforms`)
+if (!process.argv.includes("--publish")) {
+  console.log(`Preflight only: ${manifestFile}`)
+  process.exit(0)
+}
+
+function gh(args) {
+  const result = spawnSync("gh", [...args, "--repo", repo], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 10 * 1024 * 1024 })
+  if (result.status !== 0) throw new Error(result.stderr || "GitHub release command failed")
+  return result.stdout
+}
+const source = [...commits][0]
+const notes = path.join(root, "release-notes.md")
+await writeFile(notes, `SubiCode 2.0.0 provides the terminal CLI, desktop app and VS Code extension.\n\n` +
+  `CLI: \`npm install -g @subicodeagent/subi-cli@2.0.0\` (Node.js 22+). npm selects Windows, macOS or glibc Linux on x64 or ARM64.\n\n` +
+  `Desktop: choose the installer for your system and processor. Windows uses .exe, macOS .dmg or .zip, Linux AppImage, .deb or .rpm. Install extensions using VS Code's Install from VSIX command.\n\n` +
+  `All six native desktop/extension checks passed: startup, Plan/Build, settings, MCP form, plugin/skill setup and terminal reuse. Desktop source: ${source}.\n\n` +
+  `These desktop installers are unsigned; macOS builds are not notarized. Operating-system publisher checks may require manual approval. SHA256SUMS.txt lists every download's checksum.\n\n` +
+  `Account/provider access, billing and mobile pairing require their own live-service checks and are not qualified by these packaging tests.\n\n` +
+  `Guides: https://stlearnsmart.in/subi-code/docs\n`)
+const releases = JSON.parse(gh(["release", "list", "--json", "tagName,isDraft", "--limit", "100"]))
+const existing = releases.find(item => item.tagName === "v2.0.0")
+assert.ok(!existing || existing.isDraft, "An existing public release must not be overwritten")
+if (!existing) gh(["release", "create", "v2.0.0", "--target", source, "--draft", "--title", "SubiCode 2.0.0", "--notes-file", notes])
+gh(["release", "upload", "v2.0.0", ...assets.map(item => item.file), manifestFile, checksumFile, "--clobber"])
+const uploaded = JSON.parse(gh(["release", "view", "v2.0.0", "--json", "assets"]))
+for (const { download } of assets) {
+  const asset = uploaded.assets.find(item => item.name === download.filename)
+  assert.ok(asset && asset.size === download.size && asset.state === "uploaded", `${download.filename}: upload incomplete`)
+}
+gh(["release", "edit", "v2.0.0", "--draft=false", "--latest", "--notes-file", notes])
+console.log(`Published https://github.com/${repo}/releases/tag/v2.0.0`)

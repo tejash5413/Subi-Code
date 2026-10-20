@@ -13,6 +13,10 @@ on:
         description: Requalify existing native artifacts from this run instead of rebuilding
         required: false
         default: ""
+      publish_run_id:
+        description: Publish qualified public download artifacts from this completed run
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -24,6 +28,7 @@ concurrency:
 
 jobs:
   package:
+    if: ${{ !inputs.publish_run_id }}
     name: ${{ matrix.platform }}
     strategy:
       fail-fast: false
@@ -113,3 +118,22 @@ jobs:
           path: artifacts/downloads/${{ matrix.platform }}/
           if-no-files-found: error
           retention-days: 14
+
+  publish:
+    if: ${{ inputs.publish_run_id }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download qualified desktop and extension releases
+        run: gh run download "${{ inputs.publish_run_id }}" --repo "$GITHUB_REPOSITORY" --pattern 'subicode-downloads-*' --dir artifacts/downloads
+      - name: Verify all six platforms and publish release files
+        run: node script/publish-subicode-desktop.mjs artifacts/downloads --publish
