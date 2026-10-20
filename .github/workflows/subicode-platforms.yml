@@ -17,13 +17,17 @@ on:
         description: Publish qualified public download artifacts from this completed run
         required: false
         default: ""
+      publish_platforms:
+        description: Comma-separated qualified desktop targets to publish (blank means all six)
+        required: false
+        default: ""
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: native-${{ github.ref }}
+  group: native-${{ github.ref }}-${{ inputs.publish_run_id && 'publish' || 'qualify' }}
   cancel-in-progress: true
 
 jobs:
@@ -128,6 +132,7 @@ jobs:
       actions: read
     env:
       GH_TOKEN: ${{ github.token }}
+      SUBICODE_DESKTOP_PLATFORMS: ${{ inputs.publish_platforms }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - uses: actions/setup-node@v4

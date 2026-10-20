@@ -1,11 +1,14 @@
 import assert from "node:assert/strict"
 import { createHash } from "node:crypto"
-import { readFile, writeFile } from "node:fs/promises"
+import { mkdir, readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 
 const root = path.resolve(process.argv[2])
-const platforms = ["win32-x64", "win32-arm64", "darwin-x64", "darwin-arm64", "linux-x64", "linux-arm64"]
+const supported = ["win32-x64", "win32-arm64", "darwin-x64", "darwin-arm64", "linux-x64", "linux-arm64"]
+const platforms = process.env.SUBICODE_DESKTOP_PLATFORMS ? process.env.SUBICODE_DESKTOP_PLATFORMS.split(",") : supported
+assert.ok(platforms.length > 0 && platforms.every(item => supported.includes(item)))
+assert.equal(new Set(platforms).size, platforms.length)
 const repo = "tejash5413/Subi-Code"
 const assets = []
 const commits = new Set()
@@ -38,37 +41,62 @@ for (const platform of platforms) {
 assert.equal(commits.size, 1, "Desktop packages must use the same source commit")
 const manifest = { version: "2.0.0", cli: {
   available: true, nodeMinimum: 22,
-  command: "npm install -g @subicodeagent/subi-cli@2.0.0", platforms,
-}, downloads: assets.map(item => item.download) }
+  command: "npm install -g @subicodeagent/subi-cli@2.0.0", platforms: supported,
+}, desktopSourceCommit: [...commits][0], downloads: assets.map(item => item.download) }
 const manifestFile = path.join(root, "subicode-release.json")
 const checksumFile = path.join(root, "SHA256SUMS.txt")
 await writeFile(manifestFile, JSON.stringify(manifest, null, 2) + "\n")
 await writeFile(checksumFile, assets.map(({ download }) => `${download.sha256}  ${download.filename}`).join("\n") + "\n")
-console.log(`Verified ${assets.length} desktop and VSIX downloads across six native platforms`)
+console.log(`Verified ${assets.length} desktop and VSIX downloads across ${platforms.length} native platforms`)
 if (!process.argv.includes("--publish")) {
   console.log(`Preflight only: ${manifestFile}`)
   process.exit(0)
 }
 
 function gh(args) {
-  const result = spawnSync("gh", [...args, "--repo", repo], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 10 * 1024 * 1024 })
+  const result = spawnSync("gh", args[0] === "api" ? args : [...args, "--repo", repo], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], maxBuffer: 10 * 1024 * 1024 })
   if (result.status !== 0) throw new Error(result.stderr || "GitHub release command failed")
   return result.stdout
 }
 const source = [...commits][0]
+const releases = JSON.parse(gh(["release", "list", "--json", "tagName,isDraft", "--limit", "100"]))
+const existing = releases.find(item => item.tagName === "v2.0.0")
+let remote
+if (existing) {
+  remote = JSON.parse(gh(["api", `repos/${repo}/releases/tags/v2.0.0`]))
+  if (remote.assets.some(item => item.name === "subicode-release.json")) {
+    const previous = path.join(root, "previous")
+    await mkdir(previous, { recursive: true })
+    gh(["release", "download", "v2.0.0", "--pattern", "subicode-release.json", "--dir", previous, "--clobber"])
+    const previousManifest = JSON.parse(await readFile(path.join(previous, "subicode-release.json"), "utf8"))
+    assert.equal(previousManifest.desktopSourceCommit, source, "Existing desktop release uses another source commit")
+    for (const item of previousManifest.downloads) {
+      const candidate = manifest.downloads.find(value => value.filename === item.filename)
+      if (candidate) assert.equal(candidate.sha256, item.sha256, "Published installers cannot be overwritten")
+      if (!candidate) manifest.downloads.push(item)
+    }
+    await writeFile(manifestFile, JSON.stringify(manifest, null, 2) + "\n")
+    await writeFile(checksumFile, manifest.downloads.map(item => `${item.sha256}  ${item.filename}`).join("\n") + "\n")
+  }
+}
 const notes = path.join(root, "release-notes.md")
 await writeFile(notes, `SubiCode 2.0.0 provides the terminal CLI, desktop app and VS Code extension.\n\n` +
   `CLI: \`npm install -g @subicodeagent/subi-cli@2.0.0\` (Node.js 22+). npm selects Windows, macOS or glibc Linux on x64 or ARM64.\n\n` +
   `Desktop: choose the installer for your system and processor. Windows uses .exe, macOS .dmg or .zip, Linux AppImage, .deb or .rpm. Install extensions using VS Code's Install from VSIX command.\n\n` +
-  `All six native desktop/extension checks passed: startup, Plan/Build, settings, MCP form, plugin/skill setup and terminal reuse. Desktop source: ${source}.\n\n` +
+  `Verified desktop/extension targets: ${[...new Set(manifest.downloads.map(item => `${item.platform}-${item.arch}`))].join(", ")}. Checks cover startup, Plan/Build, settings, MCP form, plugin/skill setup and terminal reuse. Other desktop targets remain unavailable until their native checks pass. Desktop source: ${source}.\n\n` +
   `These desktop installers are unsigned; macOS builds are not notarized. Operating-system publisher checks may require manual approval. SHA256SUMS.txt lists every download's checksum.\n\n` +
   `Account/provider access, billing and mobile pairing require their own live-service checks and are not qualified by these packaging tests.\n\n` +
   `Guides: https://stlearnsmart.in/subi-code/docs\n`)
-const releases = JSON.parse(gh(["release", "list", "--json", "tagName,isDraft", "--limit", "100"]))
-const existing = releases.find(item => item.tagName === "v2.0.0")
-assert.ok(!existing || existing.isDraft, "An existing public release must not be overwritten")
 if (!existing) gh(["release", "create", "v2.0.0", "--target", source, "--draft", "--title", "SubiCode 2.0.0", "--notes-file", notes])
-gh(["release", "upload", "v2.0.0", ...assets.map(item => item.file), manifestFile, checksumFile, "--clobber"])
+for (const item of assets) {
+  const previous = remote?.assets.find(asset => asset.name === item.download.filename)
+  if (previous) {
+    assert.equal(previous.digest, `sha256:${item.download.sha256}`, "Existing release asset checksum mismatch")
+    continue
+  }
+  gh(["release", "upload", "v2.0.0", item.file])
+}
+gh(["release", "upload", "v2.0.0", manifestFile, checksumFile, "--clobber"])
 const uploaded = JSON.parse(gh(["release", "view", "v2.0.0", "--json", "assets"]))
 for (const { download } of assets) {
   const asset = uploaded.assets.find(item => item.name === download.filename)
