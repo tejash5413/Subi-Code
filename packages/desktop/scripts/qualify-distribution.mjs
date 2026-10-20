@@ -101,15 +101,17 @@ async function closeDesktop() {
   app = undefined
 
   if (!application) return
-  const child = application.process()
-  const exited = child.exitCode === null ? new Promise((resolve) => child.once("exit", resolve)) : Promise.resolve()
-  const closing = application.close()
-  await exited
-  await run(cli, ["service", "stop"], { ...env, XDG_STATE_HOME: path.join(fixture, ".local/state") })
-  await closing
+  console.log("Qualification: closing the disposable desktop and stopping its service")
+  // The service can hold inherited stdio open on POSIX. Stop it while Playwright
+  // closes Electron rather than waiting for process exit before stopping it.
+  await Promise.all([
+    application.close(),
+    run(cli, ["service", "stop"], { ...env, XDG_STATE_HOME: path.join(fixture, ".local/state") }),
+  ])
 }
 
 try {
+  console.log(`Qualification: launching ${platform} desktop`)
   await access(desktop)
   app = await _electron.launch({
     executablePath: desktop,
@@ -121,6 +123,7 @@ try {
   const errors = []
   page.on("pageerror", (error) => errors.push(error.message))
   await page.locator('[data-component="composer"]').waitFor({ timeout: 60000 })
+  console.log("Qualification: desktop composer is ready")
   const expiredPairing = await fetch(`http://127.0.0.1:${servicePort}/auth/connect/qualification-expired`, {
     headers: { accept: "text/html" },
   })
@@ -195,6 +198,7 @@ try {
     await expect(settings.getByText("native-setup-fixture", { exact: true })).toHaveCount(0)
   }
   await page.screenshot({ path: path.join(output, "desktop-qualification.png") })
+  console.log("Qualification: desktop UI checks completed")
 
   if (errors.length) throw new Error(errors.join("\n"))
   result.desktopExecution =
@@ -212,6 +216,7 @@ try {
     })),
   )
   await closeDesktop()
+  console.log("Qualification: installing and checking the VS Code extension")
   // Optional existing host avoids a large editor download for offline/local qualification.
   const code = process.argv[3] ?? (await vscode.downloadAndUnzipVSCode("stable"))
   const cliPath = vscode.resolveCliPathFromVSCodeExecutablePath(code)

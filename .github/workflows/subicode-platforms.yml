@@ -9,9 +9,14 @@ on:
         description: Explicit SubiCode build version
         required: true
         default: 2.0.0
+      qualification_run_id:
+        description: Requalify existing native artifacts from this run instead of rebuilding
+        required: false
+        default: ""
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: native-${{ github.ref }}
@@ -58,7 +63,18 @@ jobs:
           sudo gem install fpm --no-document
           echo 'USE_SYSTEM_FPM=true' >> "$GITHUB_ENV"
       - name: Build native CLI, VSIX and desktop packages
+        if: ${{ !inputs.qualification_run_id }}
         run: bun run packages/desktop/scripts/distribute.ts
+      - name: Download existing native candidate
+        if: ${{ inputs.qualification_run_id }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "${{ inputs.qualification_run_id }}" --repo "$GITHUB_REPOSITORY" --name "subicode-${{ matrix.platform }}" --dir "$SUBICODE_OUTPUT"
+      - name: Restore executable permissions after artifact download
+        if: ${{ inputs.qualification_run_id && runner.os != 'Windows' }}
+        run: |
+          chmod +x "$SUBICODE_OUTPUT/packages/cli/bin/subi"
+          find "$SUBICODE_OUTPUT/desktop" -type f \( -path '*/Contents/MacOS/*' -o -name 'opencode-cli' -o -name 'spawn-helper' -o -name 'chrome_crashpad_handler' -o -name 'chrome-sandbox' -o -name 'in.stlearnsmart.subi.desktop' \) -exec chmod +x {} +
       - name: Save npm candidates and qualification
         if: always()
         uses: actions/upload-artifact@v4
@@ -74,9 +90,11 @@ jobs:
         run: bun run compile-tests
       - name: Qualify packaged desktop and extension on Linux
         if: runner.os == 'Linux'
+        timeout-minutes: 12
         run: xvfb-run -a node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
       - name: Qualify packaged desktop and extension on Windows and macOS
         if: runner.os != 'Linux'
+        timeout-minutes: 12
         run: node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
       - name: Save packages and qualification status
         if: always()
@@ -84,5 +102,14 @@ jobs:
         with:
           name: subicode-${{ matrix.platform }}
           path: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Prepare qualified public download files
+        run: node script/prepare-desktop-downloads.mjs "$SUBICODE_OUTPUT" "artifacts/downloads/${{ matrix.platform }}"
+      - name: Save qualified public download files
+        uses: actions/upload-artifact@v4
+        with:
+          name: subicode-downloads-${{ matrix.platform }}
+          path: artifacts/downloads/${{ matrix.platform }}/
           if-no-files-found: error
           retention-days: 14
