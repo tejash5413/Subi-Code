@@ -31,3 +31,24 @@ The VS Code extension uses product version 2.0.0 for this requested local releas
 Active workflows under .github/workflows belong to SubiCode. Imported upstream deployment/publishing workflows are retained as inert reference files under .github/upstream-workflows. They must not be reactivated without review. No workflow deploys the separate LearnSmart website.
 
 The latest audit is [release readiness](subicode-release-readiness-2026-10-20.md). A product version label is not evidence of release qualification.
+
+## Public download assets
+
+The native workflow can requalify an existing run using `qualification_run_id`.
+This downloads the existing native builds without recompiling or republishing
+the immutable npm packages. `posix_only` limits this work to macOS and Linux.
+Qualification launches the desktop in a disposable profile, stops the exact
+service registration belonging to its allocated port, and tests the extension
+installed from the actual VSIX. Artifact downloads lose Unix executable modes;
+the workflow restores the unpacked desktop and CLI modes before qualification.
+
+Successful targets upload `subicode-downloads-<platform>` artifacts. Dispatch
+the same workflow with `publish_run_id` to publish those artifacts to the
+`v2.0.0` GitHub release. `publish_platforms` optionally limits publication to
+specific qualified targets, for example `win32-x64,win32-arm64`; unqualified
+targets remain unavailable. The publisher verifies qualifications, source
+revision, filenames, sizes and SHA-256 hashes before upload. Previously public
+installer bytes cannot be overwritten. Each addition refreshes the combined
+`subicode-release.json` and `SHA256SUMS.txt` records and names exactly the
+qualified targets in the release notes. Unsigned/not-notarized limitations
+remain explicit. npm CLI availability is independent of desktop availability.
