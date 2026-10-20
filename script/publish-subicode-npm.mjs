@@ -79,9 +79,10 @@ if (!publish) {
   console.log("Preflight only. Add --publish to publish the native packages first, then @subicodeagent/subi-cli.")
 } else {
   const candidates = [
+    process.env.SUBICODE_NPM_CLI,
     path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js"),
     path.join(path.dirname(process.execPath), "../lib/node_modules/npm/bin/npm-cli.js"),
-  ]
+  ].filter(Boolean)
   let npm
   for (const candidate of candidates) {
     if (

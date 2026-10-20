@@ -36,6 +36,8 @@ Preflight rejects missing or failed qualification, a development channel, wrong 
 
 The publishing account is **subicodeagent**, which owns the `@subicodeagent` user scope. Use that account, or a maintainer with publishing permission for all seven packages. No npm organization is required.
 
+Use a current npm 11 client for interactive publishing with browser-based security-key approval. Installation of SubiCode itself still supports Node.js 22 or newer. If the current npm executable is installed separately from Node's bundled npm, set `SUBICODE_NPM_CLI` to its `npm-cli.js` path before running the publisher.
+
 ```sh
 npm login --registry=https://registry.npmjs.org/
 npm whoami --registry=https://registry.npmjs.org/
