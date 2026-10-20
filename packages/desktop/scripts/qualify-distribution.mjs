@@ -283,6 +283,7 @@ try {
       ...args.map((arg) => (process.platform === "win32" && arg.includes(" ") ? `"${arg}"` : arg)),
       "--no-sandbox",
       "--disable-gpu",
+      "--disable-extensions",
       "--skip-welcome",
       "--disable-workspace-trust",
       fixture,

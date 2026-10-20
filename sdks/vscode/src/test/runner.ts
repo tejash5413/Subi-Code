@@ -4,9 +4,16 @@ import * as vscode from "vscode";
 
 /** Native extension-host qualification; invoke only in a disposable VS Code profile. */
 export async function run() {
+  console.log("SUBI_EXTENSION_HOST_START");
   const extension = vscode.extensions.getExtension("learnsmart.subicode");
   assert.ok(extension, "Subi Code development extension was not loaded");
-  await extension.activate();
+  let activationTimer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([extension.activate(), new Promise<never>((_, reject) => {
+      activationTimer = setTimeout(() => reject(new Error("Subi extension activation did not finish")), 20_000);
+    })]);
+  } finally {if (activationTimer) {clearTimeout(activationTimer);}}
+  console.log("SUBI_EXTENSION_HOST_ACTIVATED");
   const commands = await vscode.commands.getCommands(true);
   for (const command of [
     "subicode.openTerminal",
