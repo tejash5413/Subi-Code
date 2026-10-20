@@ -1,0 +1,201 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "start_terminal_session",
+      "description": "Start interactive terminal. Explicit approval required. Never supply credentials or replay an uncertain invocation.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "executable",
+          "args",
+          "cwd",
+          "cols",
+          "rows",
+          "foreground"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "executable": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "args": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "string",
+              "maxLength": 4096
+            }
+          },
+          "cwd": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "cols": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 500
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "foreground": {
+            "type": "boolean"
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 600000
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "read_terminal_output",
+      "description": "Read terminal output for this conversation's owned sessions. Reuse output cursors; do not repeatedly poll.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "sessionId",
+          "cursor"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "cursor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "write_terminal_input",
+      "description": "Send terminal input. Explicit approval required. Never supply credentials or replay an uncertain invocation.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "sessionId",
+          "text"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "resize_terminal_session",
+      "description": "Resize terminal for this conversation's owned sessions. Reuse output cursors; do not repeatedly poll.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "sessionId",
+          "cols",
+          "rows"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "cols": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 500
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "interrupt_terminal_session",
+      "description": "Interrupt terminal for this conversation's owned sessions. Reuse output cursors; do not repeatedly poll.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "sessionId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "terminate_terminal_session",
+      "description": "Stop terminal for this conversation's owned sessions. Reuse output cursors; do not repeatedly poll.",
+      "parameters": {
+        "type": "object",
+        "required": [
+          "sessionId"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "list_terminal_sessions",
+      "description": "List terminal sessions for this conversation's owned sessions. Reuse output cursors; do not repeatedly poll.",
+      "parameters": {
+        "type": "object",
+        "required": [],
+        "additionalProperties": false,
+        "properties": {}
+      }
+    }
+  }
+]

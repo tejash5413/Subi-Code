@@ -1,83 +1,136 @@
-# Subi - Stage 1
+<p align="center"><img src="assets/brand/subi-code-mark-transparent.png" width="100" alt="SubiCode logo"></p>
 
-Subi is a VS Code extension that aims to become a software development assistant similar to Cursor, Blackbox, Codex, Claude Code, and Emergent.
+# SubiCode 2.0
 
-## Stage 1 Status
+**One coding agent for your terminal, editor and desktop.** Plan changes, edit project files, run checks and review the result with SubiCode.
 
-This is **Stage 1** - a UI shell only. Currently implemented:
+[Website](https://stlearnsmart.in/subi-code) · [Documentation](https://stlearnsmart.in/subi-code/docs) · [Downloads](https://github.com/tejash5413/Subi-Code/releases) · [Support](https://stlearnsmart.in/contact)
 
-- Activity Bar icon (Subi)
-- Sidebar with:
-  - SUBI header
-  - Recent Tasks section (empty state: "No recent tasks")
-  - Chat input with placeholder "Ask Subi anything..."
-  - Send button (enabled when input has text)
-  - Model selector showing "Auto" (disabled in Stage 1)
-- Basic message passing from webview to extension (logged to console)
+## Release status
 
-**Not yet implemented** (future stages):
-- AI API connections (OpenRouter, Kimi, Claude, OpenAI, etc.)
-- Terminal execution
-- File editing
-- Git operations
-- Project scanning
-- Code generation
-- Autonomous agents
+The product version is **2.0.0**. This repository contains the complete SubiCode 2.0 source, replacing the earlier extension-only project. The `dev` branch holds the release candidate; `main` is updated after validation.
 
-## Getting Started
+**A source commit is not a published stable release.** Download only assets attached to a tagged release. If no matching asset is listed, that platform is not yet available. Development and unsigned CI packages are intended for qualification.
 
-### Prerequisites
-- Node.js 20+
-- VS Code 1.85+
+| Interface | Targets | Qualification status |
+| --- | --- | --- |
+| CLI | Windows, macOS, Linux; x64 and ARM64 | Windows x64 development workflow checked; release candidate verification pending |
+| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64 development host checked; release candidate verification pending |
+| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64 development startup checked; native release qualification pending |
+| Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
 
-### Installation
+See the [release readiness audit](docs/subicode-release-readiness-2026-10-20.md) for test evidence and remaining release gates. Live account billing, provider permissions, signing and native platform checks are separate from source type checks.
 
-```bash
-npm install
+## What is included
+
+- **Plan and Build:** inspect a task before making changes, then edit files and run tools with permission controls.
+- **Project context:** reference files, inspect changes, use terminal commands and return to saved sessions.
+- **Providers and models:** connect your own supported provider or use models assigned to your LearnSmart account. Availability depends on provider access, account permissions, limits and credits.
+- **MCP connections:** add an app name and server URL, connect local servers, and sign in through a browser when supported by the server.
+- **Plugins and skills:** manage extensions and reusable instructions through the app or CLI. Install only packages and servers you trust.
+- **Personal settings:** themes, appearance, shortcuts, notifications, projects, worktrees and server preferences.
+- **Device pairing:** connect another device to your computer's running SubiCode server. The host must remain available.
+
+Provider-hosted free models may be restricted to that provider's own client. Inclusion in a model list does not grant access; SubiCode does not bypass those restrictions.
+
+## Install a published package
+
+1. Open [GitHub Releases](https://github.com/tejash5413/Subi-Code/releases) and read the release notes.
+2. Select your operating system and CPU architecture. Verify the supplied SHA-256 checksum when available.
+3. **Desktop:** run the matching Windows installer, open the macOS package, or install the Linux package.
+4. **VS Code:** use **Extensions → … → Install from VSIX**, then choose the matching VSIX. Open the Command Palette and run **Open Subi Code**.
+5. **CLI:** install the matching packaged npm tarball with Node.js available:
+
+```sh
+npm install -g /path/to/downloaded-subicode-cli-package.tgz
+subi --version
+cd /path/to/your/project
+subi
 ```
 
-### Compilation
+The CLI tarball contains a native executable; use the package for your OS and CPU. These instructions do not imply an npm registry or Marketplace publication. Those links will be added when publication is verified.
 
-```bash
-npm run compile
+## First session
+
+Open a project folder, start SubiCode, connect a provider or your LearnSmart account, and choose an available model. Use **Plan** to inspect the work, then **Build** to make changes. Review tool permission requests and the final diff before accepting work.
+
+The VS Code extension can open the CLI in an editor terminal and insert a file reference from the active editor. Its Command Palette actions remain available if your OS reserves a shortcut. See the [extension guide](sdks/vscode/README.md).
+
+For MCP, plugins and skills, open **Settings → Extensions** in the app or inspect the CLI commands:
+
+```sh
+subi --help
+subi mcp --help
+subi mcp add --help
 ```
 
-### Development (Watch Mode)
+Full user guides: [installation](https://stlearnsmart.in/subi-code/docs#installation), [models](https://stlearnsmart.in/subi-code/docs#models), [MCP](https://stlearnsmart.in/subi-code/docs#mcp), [plugins](https://stlearnsmart.in/subi-code/docs#plugins), [skills](https://stlearnsmart.in/subi-code/docs#skills), [settings](https://stlearnsmart.in/subi-code/docs#settings).
 
-```bash
-npm run watch
+## Develop from source
+
+Requirements: Git, **Bun 1.4.2** (as pinned in `package.json`), Node.js 24 and the native build tools required by your OS.
+
+```sh
+git clone --branch dev https://github.com/tejash5413/Subi-Code.git
+cd Subi-Code
+bun install --frozen-lockfile
+bun run dev
 ```
 
-### Launch with F5
+To run the desktop development app:
 
-1. Open this folder in VS Code
-2. Press `F5` to launch the Extension Development Host
-3. In the new window, click the Subi icon in the Activity Bar (left sidebar)
-4. The Subi sidebar will open with the Stage 1 UI
-
-## Project Structure
-
-```
-subi/
-├── .vscode/
-│   ├── launch.json      # F5 debug configuration
-│   └── tasks.json       # Build tasks
-├── src/
-│   ├── extension.ts           # Extension entry point
-│   ├── sidebar/
-│   │   ├── SidebarProvider.ts # WebviewViewProvider implementation
-│   │   └── SidebarView.ts     # HTML template generator
-│   └── types/
-│       └── index.ts           # Shared TypeScript interfaces
-├── media/
-│   ├── icon.svg         # Activity Bar icon
-│   ├── sidebar.css      # Sidebar styles
-│   └── sidebar.js       # Webview client-side JavaScript
-├── package.json
-├── tsconfig.json
-└── .gitignore
+```sh
+bun run dev:desktop
 ```
 
-## License
+Build native CLI, VSIX and desktop packages **on the target OS and CPU**:
 
-MIT
+```sh
+# macOS / Linux qualification build
+OPENCODE_VERSION=2.0.0 OPENCODE_CHANNEL=dev bun run packages/desktop/scripts/distribute.ts
+```
+
+```powershell
+# Windows PowerShell qualification build
+$env:OPENCODE_VERSION = "2.0.0"
+$env:OPENCODE_CHANNEL = "dev"
+bun run packages/desktop/scripts/distribute.ts
+```
+
+Output: `artifacts/platforms/2.0.0/<platform>/`. Qualification builds are unsigned. Production signing and publication require a separate approved release process. Internal package names and environment variables retained for backend compatibility are not product display names.
+
+## Verify changes
+
+```sh
+bun run check
+cd packages/app
+bun run typecheck:e2e
+bun run test:unit
+```
+
+Run other tests from the affected package; the root test command intentionally rejects running all tests there. Native packaging and extension/desktop qualification run in the [SubiCode workflows](https://github.com/tejash5413/Subi-Code/actions). A successful type check alone does not qualify a platform.
+
+## Repository map
+
+| Path | Purpose |
+| --- | --- |
+| `packages/cli`, `packages/tui` | CLI entrypoint, local service and terminal UI |
+| `packages/app`, `packages/desktop` | Shared app UI and Electron desktop shell |
+| `sdks/vscode` | VS Code extension |
+| `packages/core`, `packages/server` | Agent behavior, persistence and server |
+| `packages/client`, `packages/protocol`, `packages/schema` | Client and shared API contracts |
+| `integrations/learnsmart` | LearnSmart backend integration source |
+| `assets/brand` | SubiCode logo and icon assets |
+| `docs` | Development, migration and verification records |
+
+The LearnSmart public website is maintained in a separate project and is not deployed by these workflows.
+
+## Branches and releases
+
+Create a focused branch from `dev`, open a PR back to `dev`, run checks and review. Promote a tested candidate from `dev` to `main`, then tag and publish the verified packages with checksums and release notes. Do not force-push shared branches or publish unqualified platform assets.
+
+[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Release process](docs/RELEASING.md) · [Security](SECURITY.md)
+
+## License and acknowledgements
+
+SubiCode is developed by LearnSmart and includes software derived from OpenCode and other open source projects. The [MIT license](LICENSE), upstream copyright and third-party notices are retained. Historical upstream documents are under [docs/upstream](docs/upstream); they are reference material, not SubiCode installation instructions.

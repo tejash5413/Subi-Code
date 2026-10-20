@@ -1,0 +1,74 @@
+name: SubiCode native packages
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Explicit SubiCode build version
+        required: true
+        default: 2.0.0
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: win32-x64, runner: windows-2025 }
+          - { platform: win32-arm64, runner: windows-11-arm }
+          - { platform: linux-x64, runner: ubuntu-24.04 }
+          - { platform: linux-arm64, runner: ubuntu-24.04-arm }
+          - { platform: darwin-x64, runner: macos-15-intel }
+          - { platform: darwin-arm64, runner: macos-15 }
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    env:
+      OPENCODE_VERSION: ${{ inputs.version || '2.0.0' }}
+      OPENCODE_CHANNEL: dev
+      SUBICODE_OUTPUT: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}
+      # Qualification artifacts are unsigned and never published.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: ./.github/actions/setup-bun
+      - name: Install extension dependencies
+        working-directory: sdks/vscode
+        run: bun install --frozen-lockfile
+      - name: Verify packaging contracts
+        working-directory: packages/desktop
+        run: bun test scripts/distribution-packages.test.ts scripts/subi-distribution.test.ts
+      - name: Install Linux desktop packaging and display dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby-dev build-essential rpm xvfb libnss3 libatk-bridge2.0-0 libgbm1 libasound2t64
+          sudo gem install fpm --no-document
+          echo 'USE_SYSTEM_FPM=true' >> "$GITHUB_ENV"
+      - name: Build native CLI, VSIX and desktop packages
+        run: bun run packages/desktop/scripts/distribute.ts
+      - name: Compile extension-host qualification
+        working-directory: sdks/vscode
+        run: bun run compile-tests
+      - name: Qualify packaged desktop and extension on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
+      - name: Qualify packaged desktop and extension on Windows and macOS
+        if: runner.os != 'Linux'
+        run: node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
+      - name: Save packages and qualification status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: subicode-${{ matrix.platform }}
+          path: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/
+          if-no-files-found: error
+          retention-days: 14

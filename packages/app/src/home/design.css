@@ -1,0 +1,197 @@
+.subi-recent[data-slot="home-panel"] {
+  --subi-history-toolbar-height: 76px;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.subi-recent-header {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px 32px 22px;
+  border-bottom: 1px solid var(--v2-border-border-base);
+}
+
+.subi-recent-eyebrow {
+  color: var(--v2-text-text-muted);
+  font-size: 12px;
+  line-height: var(--line-height-compact);
+}
+
+.subi-recent-header h1 {
+  margin: 0;
+  color: var(--v2-text-text-base);
+  font-size: 28px;
+  font-weight: 530;
+  line-height: 36px;
+  letter-spacing: -0.8px;
+}
+
+.subi-recent-header p {
+  margin: 0;
+  color: var(--v2-text-text-muted);
+  font-size: 13px;
+  line-height: var(--line-height-base);
+}
+
+.subi-recent .subi-home-layout {
+  max-width: 1440px;
+  grid-template-columns: 210px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 28px;
+  padding-inline: 32px;
+}
+
+.subi-recent .subi-home-projects {
+  top: 20px;
+  height: calc(100cqh - 40px);
+  margin-block: 20px;
+  padding: 12px 0;
+  border-inline-end: 1px solid var(--v2-border-border-base);
+}
+
+.subi-recent .subi-home-projects > div:first-child {
+  padding-inline: 8px 16px;
+  font-size: 12px;
+  line-height: var(--line-height-compact);
+}
+
+.subi-recent .subi-home-projects [data-home-row] {
+  min-height: 34px;
+}
+
+.subi-recent .subi-home-projects [data-slot="home-projects-scroll"] {
+  flex: 1;
+}
+
+.subi-recent .subi-history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: var(--subi-history-toolbar-height);
+  padding-block: 20px;
+}
+
+.subi-recent .subi-history-toolbar > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.subi-recent .subi-history-action {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.subi-recent [data-action="home-new-session"] {
+  min-height: 36px;
+  padding-inline: 12px;
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 6px;
+  background: var(--v2-background-bg-layer-01);
+  color: var(--v2-text-text-base);
+}
+
+.subi-recent [data-component="home-session-search"] > label {
+  border: 1px solid var(--v2-border-border-base);
+  background: var(--v2-background-bg-layer-01);
+}
+
+.subi-recent .subi-history-scroll-position,
+.subi-recent .subi-history-group {
+  top: var(--subi-history-toolbar-height);
+}
+
+.subi-recent [data-component="home-session-scroll-track"] {
+  height: calc(100cqh - var(--subi-history-toolbar-height));
+}
+
+.subi-recent .subi-history-content {
+  min-height: calc(100cqh - var(--subi-history-toolbar-height));
+}
+
+.subi-recent .subi-history-group {
+  height: 32px;
+  padding-inline: 10px;
+  color: var(--v2-text-text-muted);
+  font-size: 12px;
+  line-height: var(--line-height-compact);
+}
+
+.subi-recent [data-component="home-session-row-container"],
+.subi-recent [data-component="home-session-row"],
+.subi-recent [data-slot="home-session-editor"] {
+  min-height: 52px;
+  height: 52px;
+}
+
+.subi-recent [data-component="home-session-row-container"] {
+  border-bottom: 1px solid var(--v2-border-border-muted);
+  border-radius: 0;
+}
+
+.subi-recent [data-component="home-session-row"],
+.subi-recent [data-slot="home-session-editor"] {
+  gap: 10px;
+  padding-inline: 10px 28px;
+  font-size: 13px;
+  line-height: var(--line-height-base);
+}
+
+.subi-recent [data-component="home-session-project-name"] {
+  margin-inline-start: auto;
+  color: var(--v2-text-text-muted);
+  font-size: 12px;
+  line-height: var(--line-height-compact);
+}
+
+.subi-recent-project-filter {
+  padding: 12px 24px 0;
+}
+
+.subi-recent [data-component="home-projects-dropdown"] {
+  padding-inline: 10px;
+  border: 1px solid var(--v2-border-border-base);
+}
+
+@media (max-width: 1100px) {
+  .subi-recent .subi-home-layout {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: 24px;
+  }
+
+  .subi-recent-header {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .subi-recent-header {
+    gap: 6px;
+    padding: 20px 16px;
+  }
+
+  .subi-recent-header h1 {
+    font-size: 25px;
+    line-height: 32px;
+  }
+
+  .subi-recent .subi-home-layout,
+  .subi-recent-project-filter {
+    padding-inline: 16px;
+  }
+
+  .subi-recent .subi-history-toolbar {
+    gap: 8px;
+  }
+
+  .subi-recent [data-component="home-session-project-name"] {
+    margin-inline-start: 0;
+  }
+
+  .subi-recent [data-action="home-new-session"] {
+    padding-inline: 8px;
+  }
+}

@@ -1,5 +1,0 @@
-.vscode/**
-src/**
-tsconfig.json
-**/*.map
-out/**/__tests__/**

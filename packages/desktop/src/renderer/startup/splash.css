@@ -1,0 +1,29 @@
+[data-component="first-launch-splash"] svg {
+  /* Animate the whole supplied mark and wordmark; completion releases startup. */
+  animation: first-launch-wordmark-draw 1000ms ease-out both;
+}
+
+[data-component="first-launch-splash"][data-drawing="pending"] svg {
+  animation-play-state: paused;
+}
+
+@keyframes first-launch-wordmark-draw {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-component="first-launch-splash"] svg {
+    animation: none;
+  }
+}
+[data-component="first-launch-splash"] .first-launch-wordmark {
+  display: block;
+  width: min(480px, 80vw, calc(75dvh * 480 / 360));
+  max-width: 100%;
+  height: auto;
+}

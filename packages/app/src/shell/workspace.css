@@ -1,0 +1,329 @@
+.subi-workspace-sidebar {
+  width: clamp(204px, 18vw, 240px);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  padding: 12px 12px 16px;
+  border-inline-end: 1px solid var(--v2-border-border-base);
+  color: var(--v2-text-text-muted);
+  background: var(--v2-background-bg-deep);
+  font-size: 13px;
+  line-height: var(--line-height-base, 20px);
+}
+
+.subi-workspace-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 6px 24px;
+  color: var(--v2-text-text-base);
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.4px;
+}
+
+.subi-new-task {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 7px;
+  background: var(--v2-background-bg-layer-02);
+  color: var(--v2-text-text-base);
+  text-align: start;
+}
+
+.subi-new-task kbd {
+  margin-inline-start: auto;
+  color: var(--v2-text-text-faint);
+  font: inherit;
+  font-size: 11px;
+}
+
+.subi-workspace-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 22px 0 28px;
+}
+
+.subi-workspace-nav button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-align: start;
+}
+
+.subi-workspace-nav button[aria-current="page"] {
+  background: var(--v2-background-bg-layer-02);
+  color: var(--v2-text-text-base);
+}
+
+.subi-workspace-tasks-label {
+  padding: 0 10px 10px;
+  color: var(--v2-text-text-faint);
+  font-size: 13px;
+}
+
+.subi-workspace-tasks {
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.subi-workspace-tasks [data-slot="vertical-tabs"] {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.subi-workspace-tasks [data-slot="vertical-tabs-scroll"] {
+  min-height: 0;
+  padding-block-end: 16px;
+  scroll-padding-block-end: 16px;
+}
+
+.subi-workspace-account {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--v2-border-border-base);
+}
+
+.subi-workspace-account button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 6px;
+  min-width: 0;
+  text-align: start;
+}
+
+.subi-workspace-account button:first-child {
+  flex: 1;
+}
+
+.subi-workspace-account strong {
+  display: block;
+  font-weight: 500;
+  color: var(--v2-text-text-base);
+}
+
+.subi-workspace-account small {
+  display: block;
+  font-size: 13px;
+  color: var(--v2-text-text-faint);
+}
+
+.subi-workspace-sidebar button:hover,
+.subi-account-button:hover,
+.subi-composer-shortcuts button:hover {
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+}
+
+.subi-workspace-sidebar button:focus-visible,
+.subi-new-session button:focus-visible {
+  outline: 2px solid var(--v2-text-text-muted);
+  outline-offset: 2px;
+}
+
+.subi-new-session {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.subi-workspace-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
+  padding: 12px 28px;
+  border-bottom: 1px solid var(--v2-border-border-base);
+}
+
+.subi-account-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 6px;
+  color: var(--v2-text-text-muted);
+  font-size: 13px;
+  line-height: var(--line-height-base, 20px);
+}
+
+.subi-welcome-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 48px 36px 76px;
+}
+
+.subi-welcome-content {
+  width: 100%;
+  max-width: 840px;
+}
+
+.subi-welcome-heading h1 {
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.25;
+  font-weight: 580;
+  letter-spacing: -1px;
+  color: var(--v2-text-text-base);
+}
+
+.subi-welcome-heading p {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--v2-text-text-faint);
+}
+
+.subi-task-suggestions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 36px 0 28px;
+}
+
+.subi-task-suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 54px;
+  padding: 12px;
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 7px;
+  color: var(--v2-text-text-muted);
+  text-align: start;
+  font-size: 13px;
+  line-height: var(--line-height-base, 20px);
+}
+
+.subi-task-suggestions button > span {
+  flex: 1;
+}
+
+.subi-task-suggestions button:enabled:hover {
+  background: var(--v2-overlay-simple-overlay-hover);
+  color: var(--v2-text-text-base);
+}
+
+.subi-task-suggestions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.subi-welcome-composer [data-component="composer"] {
+  border: 1px solid var(--v2-border-border-base);
+  background: var(--v2-background-bg-layer-01);
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.subi-welcome-composer [data-component="composer"]:focus-within {
+  border-color: var(--v2-text-text-faint);
+}
+
+.subi-welcome-composer [data-component="composer-editor"] {
+  min-height: 126px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.subi-composer-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 12px 4px 16px;
+  color: var(--v2-text-text-faint);
+  font-size: 13px;
+  line-height: var(--line-height-base, 20px);
+}
+
+.subi-composer-shortcuts kbd {
+  font: inherit;
+  color: var(--v2-text-text-muted);
+  margin-inline-end: 4px;
+}
+
+.subi-composer-shortcuts button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+}
+
+.subi-composer-shortcuts button:last-child {
+  margin-inline-start: auto;
+}
+
+.subi-workspace-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 28px;
+  color: var(--v2-text-text-faint);
+}
+
+@media (max-width: 1100px) {
+  .subi-task-suggestions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 24px 0;
+  }
+  .subi-task-suggestions button {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  .subi-welcome-body {
+    padding: 32px 24px 64px;
+  }
+}
+
+@media (max-width: 767px) {
+  .subi-workspace-header {
+    min-height: 52px;
+    padding: 8px 16px;
+  }
+  .subi-welcome-body {
+    padding: 28px 16px 72px;
+  }
+  .subi-composer-shortcuts {
+    gap: 8px 12px;
+  }
+  .subi-welcome-composer [data-component="composer-editor"] {
+    min-height: 100px;
+  }
+  .subi-new-session [data-component="new-session-tip"] {
+    max-width: calc(100vw - 96px);
+  }
+}
+
+@media (max-height: 650px) {
+  .subi-welcome-body {
+    align-items: flex-start;
+    padding-top: 24px;
+  }
+  .subi-task-suggestions {
+    margin: 20px 0;
+  }
+}

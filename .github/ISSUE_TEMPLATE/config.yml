@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: SubiCode documentation
+    url: https://stlearnsmart.in/subi-code/docs
+    about: Installation and product guides.
+  - name: LearnSmart support
+    url: https://stlearnsmart.in/contact
+    about: Account help and private security reports.

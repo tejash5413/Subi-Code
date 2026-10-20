@@ -1,0 +1,192 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_list_tools",
+      "description": "List connected MCP tool IDs, read/write routes and host input schemas. Fetch another page when nextOffset is returned. No external tool is invoked.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_read_tool",
+      "description": "Call one discovered read-only MCP tool using its toolId and JSON arguments from mcp_list_tools. Server schemas and permissions are checked locally.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "toolId",
+          "argumentsJson"
+        ],
+        "properties": {
+          "toolId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "argumentsJson": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 6000
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_write_tool",
+      "description": "Call one discovered mutating MCP tool using its toolId and JSON arguments from mcp_list_tools. Server schemas and permissions are checked locally.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "toolId",
+          "argumentsJson"
+        ],
+        "properties": {
+          "toolId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "argumentsJson": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 6000
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_list_context",
+      "description": "List discovered MCP prompts and resources with opaque IDs. Listing does not fetch their content. Use mcp_get_prompt or mcp_read_resource for one item.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 192000
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_get_prompt",
+      "description": "Get one discovered MCP prompt by its opaque catalog ID.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "promptId"
+        ],
+        "properties": {
+          "promptId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "arguments": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "value"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "mcp_read_resource",
+      "description": "Read one discovered MCP resource or template by its opaque catalog ID.",
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "resourceId"
+        ],
+        "properties": {
+          "resourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "variables": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "value"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 8192
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

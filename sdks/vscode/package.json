@@ -1,0 +1,128 @@
+{
+  "name": "subicode",
+  "displayName": "SubiCode",
+  "description": "SubiCode coding agent for VS Code",
+  "version": "2.0.0",
+  "publisher": "learnsmart",
+  "homepage": "https://stlearnsmart.in/subi-code",
+  "bugs": {
+    "url": "https://stlearnsmart.in/contact"
+  },
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#000000",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "subicode.openTerminal",
+        "title": "Open Subi Code",
+        "icon": {
+          "light": "images/button-light.svg",
+          "dark": "images/button-dark.svg"
+        }
+      },
+      {
+        "command": "subicode.openNewTerminal",
+        "title": "Open Subi Code in new tab",
+        "icon": {
+          "light": "images/button-light.svg",
+          "dark": "images/button-dark.svg"
+        }
+      },
+      {
+        "command": "subicode.addFilepathToTerminal",
+        "title": "Add Filepath to Terminal"
+      },
+      {
+        "command": "subicode.openDocumentation",
+        "title": "Open Documentation",
+        "category": "SubiCode"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "subicode.openNewTerminal",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "subicode.openTerminal",
+        "title": "Run Subi Code",
+        "key": "cmd+escape",
+        "mac": "cmd+escape",
+        "win": "ctrl+escape",
+        "linux": "ctrl+escape"
+      },
+      {
+        "command": "subicode.openNewTerminal",
+        "title": "Run Subi Code",
+        "key": "cmd+shift+escape",
+        "mac": "cmd+shift+escape",
+        "win": "ctrl+shift+escape",
+        "linux": "ctrl+shift+escape"
+      },
+      {
+        "command": "subicode.addFilepathToTerminal",
+        "title": "Subi Code: Insert At-Mentioned",
+        "key": "cmd+alt+k",
+        "mac": "cmd+alt+k",
+        "win": "ctrl+alt+K",
+        "linux": "ctrl+alt+K"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "subicode.executablePath": {
+          "scope": "machine",
+          "description": "Optional Subi Code CLI executable path. Uses the bundled CLI when available, otherwise subi from PATH.",
+          "default": "",
+          "type": "string"
+        }
+      },
+      "title": "Subi Code"
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "bun run package",
+    "compile": "bun run check-types && bun run lint && node esbuild.js",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "bun run check-types && bun run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "bun run compile-tests && bun run compile && bun run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.94.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "esbuild": "^0.25.3",
+    "typescript": "^5.8.3",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tejash5413/Subi-Code.git"
+  }
+}

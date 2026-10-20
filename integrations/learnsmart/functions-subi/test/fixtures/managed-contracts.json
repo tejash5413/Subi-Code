@@ -1,0 +1,144 @@
+{
+  "school": {
+    "access-status": {
+      "accountType": "school",
+      "quotaMode": "school_tokens",
+      "allowed": true,
+      "permissionPolicy": {
+        "schemaVersion": 1,
+        "profileCeiling": "ask",
+        "source": "school_role",
+        "validUntilMs": 1791288300000
+      },
+      "agentImage": "image_v1",
+      "toolCapabilities": ["agent_skills_v1"],
+      "agentAvailable": false
+    },
+    "models": {
+      "allowed": true,
+      "source": "school",
+      "quotaMode": "school_tokens",
+      "models": [
+        {
+          "modelKey": "mdl_test",
+          "displayName": "Test Model",
+          "capabilities": {
+            "inputModalities": [
+              "text"
+            ],
+            "outputModalities": [
+              "text"
+            ],
+            "toolCalling": true
+          },
+          "contextLength": 128000
+        }
+      ]
+    },
+    "monthly-limit": {
+      "quotaMode": "school_tokens",
+      "configured": true,
+      "monthlyTokenLimit": 10000,
+      "period": "calendar_month",
+      "source": "school"
+    },
+    "subicode-status": {
+      "active": true,
+      "tier": null,
+      "renewalDateMs": null,
+      "source": "school_default",
+      "quotaMode": "school_tokens",
+      "allowance": {
+        "monthlyRequests": null,
+        "monthlyTokens": 10000,
+        "allowanceSource": "school_monthly_limit"
+      }
+    },
+    "usage": {
+      "allowed": true,
+      "quotaMode": "school_tokens",
+      "usage": {
+        "configured": true,
+        "period": "2026-10",
+        "monthlyTokenLimit": 10000,
+        "usedTokens": 0,
+        "remainingTokens": 10000
+      },
+      "chatAvailable": false
+    }
+  },
+  "individual": {
+    "access-status": {
+      "accountType": "individual",
+      "quotaMode": "individual_credits",
+      "allowed": true,
+      "permissionPolicy": {
+        "schemaVersion": 1,
+        "profileCeiling": "full",
+        "source": "individual",
+        "validUntilMs": 1791288300000
+      },
+      "agentImage": "image_v1",
+      "toolCapabilities": ["agent_skills_v1"],
+      "agentAvailable": false
+    },
+    "models": {
+      "allowed": true,
+      "source": "individual",
+      "quotaMode": "individual_credits",
+      "models": [
+        {
+          "modelKey": "mdl_test",
+          "displayName": "Test Model",
+          "capabilities": {
+            "inputModalities": [
+              "text"
+            ],
+            "outputModalities": [
+              "text"
+            ],
+            "toolCalling": true
+          },
+          "contextLength": 128000
+        }
+      ]
+    },
+    "monthly-limit": {
+      "quotaMode": "individual_credits",
+      "configured": true,
+      "credits": {
+        "monthlyGrantMilli": 4500000,
+        "monthlyRemainingMilli": 4500000,
+        "rolloverRemainingMilli": 0,
+        "topupRemainingMilli": 0,
+        "reservedMilli": 0,
+        "totalAvailableMilli": 4500000,
+        "cycleId": "individual-user:1790812800000:1793491200000",
+        "cycleEndsAtMs": 1793491200000
+      },
+      "period": "calendar_month"
+    },
+    "subicode-status": {
+      "active": true,
+      "tier": null,
+      "renewalDateMs": 1793491200000,
+      "source": "individual_subscription",
+      "quotaMode": "individual_credits"
+    },
+    "usage": {
+      "allowed": true,
+      "quotaMode": "individual_credits",
+      "credits": {
+        "monthlyGrantMilli": 4500000,
+        "monthlyRemainingMilli": 4500000,
+        "rolloverRemainingMilli": 0,
+        "topupRemainingMilli": 0,
+        "reservedMilli": 0,
+        "totalAvailableMilli": 4500000,
+        "cycleId": "individual-user:1790812800000:1793491200000",
+        "cycleEndsAtMs": 1793491200000
+      },
+      "chatAvailable": false
+    }
+  }
+}

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Subi Code
+Exec="/opt/Subi Code/in.stlearnsmart.subi.desktop" %U
+Terminal=false
+Type=Application
+Icon=in.stlearnsmart.subi.desktop
+StartupWMClass=in.stlearnsmart.subi.desktop
+NoDisplay=true
+Comment=Open source AI coding agent
+Categories=Development;

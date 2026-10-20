@@ -1,0 +1,23 @@
+{
+  "name": "functions-subi",
+  "description": "SUBI Managed AI backend (isolated Functions codebase, Phase 1A foundation)",
+  "scripts": {
+    "lint": "echo no-lint && exit 0",
+    "test": "node --test test/*.test.js",
+    "scan": "node scripts/check-boundaries.js && node scripts/check-no-leak.js",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/secret-manager": "^5.6.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^5.1.1"
+  },
+  "private": true
+}

@@ -1,0 +1,51 @@
+/* Shared app surfaces: Windows, macOS, Linux and browser hosts use the same
+   theme roles and controls. Portal contents deliberately share these rules. */
+[data-component="dialog-v2"] [data-slot="dialog-container"] {
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 10px;
+  background: var(--v2-background-bg-base);
+}
+
+[data-component="dialog-v2"] [data-slot="dialog-container"] [data-slot="dialog-header-title"] {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 530;
+  letter-spacing: -0.3px;
+}
+
+[data-component="menu-v2-content"],
+[data-component="menu-v2-content"][data-slot="select-v2-content"],
+.subi-project-popover {
+  border: 1px solid var(--v2-border-border-base);
+  border-radius: 8px;
+  background: var(--v2-background-bg-base);
+}
+
+[data-component="menu-v2-content"] [data-component="menu-v2-item"] {
+  border-radius: 5px;
+}
+
+[data-component="dialog-v2"] [data-component="settings-list"] {
+  padding-inline: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-component="dialog-v2"] [data-component="settings-row"] {
+  padding-inline: 16px;
+}
+
+.command-palette .command-palette-search {
+  padding: 12px;
+  border-bottom: 1px solid var(--v2-border-border-base);
+}
+
+.command-palette .command-palette-search [data-component="text-input-v2"] {
+  border: 1px solid var(--v2-border-border-base);
+  background: var(--v2-background-bg-layer-01);
+}
+
+.command-palette .command-palette-results {
+  padding: 10px;
+}

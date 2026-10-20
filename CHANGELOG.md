@@ -1,28 +1,14 @@
-# Changelog
+# SubiCode changelog
 
-All notable changes to this project will be documented in this file.
+## 2.0.0 — release candidate
 
-## [0.0.1] - 2026-09-03
+This candidate replaces the earlier extension-only repository with the complete CLI, terminal UI, desktop app, VS Code extension and supporting backend source.
 
-### Added
-- Initial Stage 1 shell for Subi VS Code extension
-- Activity Bar container with Subi icon
-- Sidebar Webview with:
-  - SUBI header
-  - Recent Tasks section with empty state
-  - Chat input area with placeholder
-  - Send button (enabled on input)
-  - Model selector showing "Auto" (disabled)
-- Basic message passing from webview to extension
-- TypeScript configuration with strict mode
-- Build and watch scripts
-- F5 launch configuration
+- SubiCode branding, shared logo assets and theme-aware UI.
+- Plan/Build workflows, saved sessions, project context and review tools.
+- LearnSmart account integration and supported bring-your-own-provider connections.
+- MCP connection setup, plugin/skill management and documentation links.
+- Native packaging and qualification scripts for Windows, macOS and Linux on x64/ARM64.
+- Public product version display standardized to 2.0.0; internal compatibility package versions remain separate.
 
-### Not Implemented (Future Stages)
-- AI API connections
-- Terminal execution
-- File editing
-- Git operations
-- Project scanning
-- Code generation
-- Autonomous agents
+Publication date and verified download assets will be recorded when release gates pass. See [readiness audit](docs/subicode-release-readiness-2026-10-20.md). Previous upstream release notes are preserved under docs/upstream.

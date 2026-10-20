@@ -1,0 +1,9 @@
+[data-component="logo-mark"] {
+  width: 16px;
+  aspect-ratio: 1;
+}
+
+[data-color-scheme="light"] [data-slot="brand-mark"] {
+  /* Keep the white artwork readable on light themes without adding a tile. */
+  filter: brightness(0.3);
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "sha256": "57830805d604cd9140d356cd7cf766e484035cac9510f85c44ee246d6ff46b33",
+    "source": "src/platform/EventEmitter.ts"
+  },
+  {
+    "sha256": "80b7a14b2c64c87d93853529cdf8ffff3bed54e73f14870d6d106a54ca4619d5",
+    "source": "src/config/learnsmartFirebase.ts"
+  },
+  {
+    "sha256": "621a790df094050a945bf7adf394104df25a9d4bcfb56c40015266b0ebd5dd70",
+    "source": "src/services/auth/LearnSmartFirebase.ts"
+  },
+  {
+    "sha256": "ba059b37faca7974e8e1b1e91ce395b4bc136bdeaebe88506c43d11cc2c0eea2",
+    "source": "src/services/auth/LearnSmartAuthService.ts"
+  },
+  {
+    "sha256": "9c6fb1559bdb779838825aee7a3d8a104d708967d0b8d7b7bef40dedddc968c0",
+    "source": "src/services/managed/managedBackendCodes.ts"
+  },
+  {
+    "sha256": "ab72024a68bc3c216a95f1da8ca5f72734bb261356d02c835cc610f993dc05b4",
+    "source": "src/services/managed/managedTypes.ts"
+  },
+  {
+    "sha256": "a9e6392799f3642ab852bd3e3dc4c08383f90e677c0063c9d1e77d77da59515f",
+    "source": "src/services/managed/subiCreditSummary.ts"
+  },
+  {
+    "sha256": "3a6cb6fb93d26378b0a6a61cb6744b1b117faebfb0a817ed8e44ce4be1e7066a",
+    "source": "src/services/managed/learnsmartManagedService.ts"
+  },
+  {
+    "sha256": "38812ae780c17cc80d2160d5dc47deddc844f6d75402411a4e92ee9fb86ae22f",
+    "source": "src/services/managed/managedSessionController.ts"
+  }
+]
