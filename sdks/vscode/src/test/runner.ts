@@ -33,16 +33,23 @@ export async function run() {
         timer = setTimeout(() => reject(new Error("Subi terminal process did not start")), 20_000);
       })]));
     } finally { if (timer) {clearTimeout(timer);} }
+    assert.equal(terminal.exitStatus, undefined, "Bundled CLI must remain running");
+    // VS Code treats the API-supplied name as static on POSIX. Exercise an actual
+    // user rename instead of assuming an OSC title sequence changes the tab name.
+    terminal.show();
+    await vscode.commands.executeCommand("workbench.action.terminal.renameWithArg", { name: "Renamed Subi qualification" });
     const renamed = Date.now() + 20_000;
-    while (terminal.name === terminal.creationOptions.name && Date.now() < renamed) {
+    while (terminal.name !== "Renamed Subi qualification" && Date.now() < renamed) {
+      assert.equal(terminal.exitStatus, undefined, "Bundled CLI exited while renaming its terminal");
       await new Promise(resolve => setTimeout(resolve, 25));
     }
-    assert.notEqual(terminal.name, terminal.creationOptions.name, "CLI must rename the terminal before reuse is tested");
+    assert.equal(terminal.name, "Renamed Subi qualification", "Rename must finish before reuse is tested");
     const count = vscode.window.terminals.length;
     console.log("SUBI_TERMINAL_BEFORE_REUSE", JSON.stringify(vscode.window.terminals.map(value => ({ name: value.name, initialName: value.creationOptions.name, exited: value.exitStatus !== undefined }))));
     await vscode.commands.executeCommand("subicode.openTerminal");
     assert.equal(vscode.window.terminals.length, count, "Open should focus the existing Subi terminal");
     assert.equal(vscode.window.activeTerminal, terminal, "Open should focus the original terminal after its title changes");
+    assert.equal(terminal.exitStatus, undefined, "Reused Subi terminal must still be running");
     await vscode.commands.executeCommand("subicode.openNewTerminal");
     assert.equal(vscode.window.terminals.length, count + 1, "New tab should create a separate owned terminal");
     console.log("SUBI_EXTENSION_HOST_PASS: commands, bundled executable, native process and terminal reuse");

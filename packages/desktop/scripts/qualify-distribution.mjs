@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process"
+import { execFileSync, spawn } from "node:child_process"
 import { createRequire } from "node:module"
 import { access, mkdtemp, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
@@ -228,7 +228,15 @@ try {
   await closeDesktop()
   console.log("Qualification: installing and checking the VS Code extension")
   // Optional existing host avoids a large editor download for offline/local qualification.
-  const code = process.argv[3] ?? (await vscode.downloadAndUnzipVSCode("stable"))
+  const downloadedCode = process.argv[3] ?? (await vscode.downloadAndUnzipVSCode("stable"))
+  // Recent VS Code macOS bundles changed their executable name. Read the bundle's
+  // declared entrypoint instead of relying on test-electron's historical name.
+  const code = process.platform === "darwin"
+    ? path.join(path.dirname(downloadedCode), execFileSync("/usr/libexec/PlistBuddy", [
+      "-c", "Print :CFBundleExecutable", path.resolve(path.dirname(downloadedCode), "../Info.plist"),
+    ], { encoding: "utf8" }).trim())
+    : downloadedCode
+  await access(code)
   const cliPath = vscode.resolveCliPathFromVSCodeExecutablePath(code)
 
   const args = [

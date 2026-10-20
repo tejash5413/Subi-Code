@@ -84,7 +84,7 @@ jobs:
           chmod +x "$SUBICODE_OUTPUT/packages/cli/bin/subi"
           find "$SUBICODE_OUTPUT/desktop" -type f \( -path '*/Contents/MacOS/*' -o -name 'opencode-cli' -o -name 'spawn-helper' -o -name 'chrome_crashpad_handler' -o -name 'chrome-sandbox' -o -name 'in.stlearnsmart.subi.desktop' \) -exec chmod +x {} +
       - name: Save npm candidates and qualification
-        if: always()
+        if: ${{ always() && !inputs.qualification_run_id }}
         uses: actions/upload-artifact@v4
         with:
           name: subicode-npm-${{ matrix.platform }}
@@ -105,11 +105,21 @@ jobs:
         timeout-minutes: 12
         run: node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
       - name: Save packages and qualification status
-        if: always()
+        if: ${{ always() && !inputs.qualification_run_id }}
         uses: actions/upload-artifact@v4
         with:
           name: subicode-${{ matrix.platform }}
           path: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save native qualification results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: subicode-qualification-${{ matrix.platform }}
+          path: |
+            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/packages/qualification.json
+            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/desktop-qualification.png
           if-no-files-found: error
           retention-days: 14
       - name: Prepare qualified public download files
