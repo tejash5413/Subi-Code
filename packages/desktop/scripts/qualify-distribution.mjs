@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process"
 import { createRequire } from "node:module"
-import { access, mkdtemp, mkdir, readFile, readdir, writeFile } from "node:fs/promises"
+import { access, mkdtemp, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import net from "node:net"
@@ -252,12 +252,20 @@ try {
       ELECTRON_RUN_AS_NODE: "1",
     },
   )
+  const extensionDirectory = path.join(fixture, "extensions")
+  const installedExtension = (await readdir(extensionDirectory, { withFileTypes: true })).find(entry =>
+    entry.isDirectory() && entry.name.startsWith(`learnsmart.subicode-${result.extensionVersion}`),
+  )
+  if (!installedExtension) throw new Error("Installed SubiCode VSIX was not found")
+  const extensionPath = path.join(extensionDirectory, installedExtension.name)
+  const extensionBinary = path.join(extensionPath, "bin", platform, process.platform === "win32" ? "subi.exe" : "subi")
+  console.log(`Qualification: installed extension binary mode ${((await stat(extensionBinary)).mode & 0o777).toString(8)}`)
   await vscode.runTests({
     vscodeExecutablePath: code,
     extensionDevelopmentPath:
       process.platform === "win32"
-        ? `"${path.join(output, "packages/extension")}"`
-        : path.join(output, "packages/extension"),
+        ? `"${extensionPath}"`
+        : extensionPath,
     extensionTestsPath:
       process.platform === "win32"
         ? `"${path.join(root, "sdks/vscode/out/test/runner.js")}"`
