@@ -50,6 +50,8 @@ subi
 
 The CLI tarball contains a native executable; use the package for your OS and CPU. These instructions do not imply an npm registry or Marketplace publication. Those links will be added when publication is verified.
 
+The public `npm install -g @subicodeagent/subi-cli` launcher and six native packages are prepared under [sdks/npm](sdks/npm). Registry publication is pending native qualification and publishing access. Maintainers should follow the [npm publishing guide](docs/npm-publishing.md).
+
 ## First session
 
 Open a project folder, start SubiCode, connect a provider or your LearnSmart account, and choose an available model. Use **Plan** to inspect the work, then **Build** to make changes. Review tool permission requests and the final diff before accepting work.
@@ -87,13 +89,13 @@ Build native CLI, VSIX and desktop packages **on the target OS and CPU**:
 
 ```sh
 # macOS / Linux qualification build
-OPENCODE_VERSION=2.0.0 OPENCODE_CHANNEL=dev bun run packages/desktop/scripts/distribute.ts
+OPENCODE_VERSION=2.0.0 OPENCODE_CHANNEL=prod bun run packages/desktop/scripts/distribute.ts
 ```
 
 ```powershell
 # Windows PowerShell qualification build
 $env:OPENCODE_VERSION = "2.0.0"
-$env:OPENCODE_CHANNEL = "dev"
+$env:OPENCODE_CHANNEL = "prod"
 bun run packages/desktop/scripts/distribute.ts
 ```
 

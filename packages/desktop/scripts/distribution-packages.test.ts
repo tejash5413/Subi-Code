@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { mkdir, mkdtemp, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import path from "node:path"
-import { distributionTarget, stageDistribution } from "./distribution-packages"
+import { distributionTarget, stageDistribution, stageNpmWrapper } from "./distribution-packages"
 
 // A missing/incorrect bundled binary used to go unnoticed in non-Windows VSIXs.
 test.each([
@@ -72,6 +72,7 @@ test.each([
       await Bun.file(path.join(staged.extension, "bin", `${platform}-${arch}`, target.binary)).arrayBuffer(),
     ).toEqual(bytes.buffer)
     expect(await Bun.file(path.join(staged.cli, "package.json")).json()).toMatchObject({
+      name: `@subicodeagent/subi-cli-${platform}-${arch}`,
       os: [platform],
       cpu: [arch],
       version: "2.0.0-dev.30",
@@ -109,4 +110,25 @@ test.each([
 
 test("rejects unsupported distributions instead of falling back to an x64 binary", () => {
   expect(() => distributionTarget("linux", "ia32")).toThrow("Unsupported SubiCode distribution")
+})
+
+test("public npm launcher has identical text across Windows and Unix build hosts", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "subicode-npm-wrapper-"))
+  try {
+    await Bun.write(
+      path.join(root, "sdks/npm/package.json"),
+      JSON.stringify({ name: "@subicodeagent/subi-cli", version: "0.0.0" }),
+    )
+    for (const file of ["sdks/npm/bin/subi.cjs", "sdks/npm/README.md", "LICENSE"])
+      await Bun.write(path.join(root, file), "first line\r\nsecond line\r\n")
+    const output = await stageNpmWrapper(root, path.join(root, "wrapper"), "2.0.0")
+    for (const file of ["bin/subi.cjs", "README.md", "LICENSE"])
+      expect(await Bun.file(path.join(output, file)).text()).toBe("first line\nsecond line\n")
+    const manifest = await Bun.file(path.join(output, "package.json")).json()
+    expect(manifest.version).toBe("2.0.0")
+    expect(Object.keys(manifest.optionalDependencies)).toHaveLength(6)
+    expect(new Set(Object.values(manifest.optionalDependencies))).toEqual(new Set(["2.0.0"]))
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })

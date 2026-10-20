@@ -37,9 +37,9 @@ jobs:
         shell: bash
     env:
       OPENCODE_VERSION: ${{ inputs.version || '2.0.0' }}
-      OPENCODE_CHANNEL: dev
+      OPENCODE_CHANNEL: prod
       SUBICODE_OUTPUT: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}
-      # Qualification artifacts are unsigned and never published.
+      # Desktop artifacts remain unsigned. npm publication is a separate, manual, qualified step.
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -59,6 +59,16 @@ jobs:
           echo 'USE_SYSTEM_FPM=true' >> "$GITHUB_ENV"
       - name: Build native CLI, VSIX and desktop packages
         run: bun run packages/desktop/scripts/distribute.ts
+      - name: Save npm candidates and qualification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: subicode-npm-${{ matrix.platform }}
+          path: |
+            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/subicodeagent-subi-cli*.tgz
+            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/packages/qualification.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Compile extension-host qualification
         working-directory: sdks/vscode
         run: bun run compile-tests

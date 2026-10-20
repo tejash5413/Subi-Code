@@ -1,0 +1,37 @@
+{
+  "name": "@subicodeagent/subi-cli",
+  "version": "2.0.0",
+  "description": "SubiCode coding agent for your terminal",
+  "license": "MIT",
+  "homepage": "https://stlearnsmart.in/subi-code",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tejash5413/Subi-Code.git",
+    "directory": "sdks/npm"
+  },
+  "bin": {
+    "subi": "bin/subi.cjs"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "bin",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "optionalDependencies": {
+    "@subicodeagent/subi-cli-win32-x64": "2.0.0",
+    "@subicodeagent/subi-cli-win32-arm64": "2.0.0",
+    "@subicodeagent/subi-cli-darwin-x64": "2.0.0",
+    "@subicodeagent/subi-cli-darwin-arm64": "2.0.0",
+    "@subicodeagent/subi-cli-linux-x64": "2.0.0",
+    "@subicodeagent/subi-cli-linux-arm64": "2.0.0"
+  },
+  "scripts": {
+    "test": "node --test test/launcher.test.cjs test/publication.test.cjs"
+  }
+}

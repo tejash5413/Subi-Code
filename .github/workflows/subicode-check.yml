@@ -26,6 +26,9 @@ jobs:
       - name: E2E TypeScript
         working-directory: packages/app
         run: bun run typecheck:e2e
+      - name: npm launcher contracts
+        working-directory: sdks/npm
+        run: npm test
       - name: App unit tests
         working-directory: packages/app
         run: bun run test:unit
@@ -35,3 +38,6 @@ jobs:
       - name: CLI MCP commands
         working-directory: packages/cli
         run: bun test --timeout 60000 test/mcp-auth-choices.test.ts
+      - name: VS Code CLI layout compatibility
+        working-directory: packages/desktop
+        run: node --test scripts/vscode-cli.test.mjs

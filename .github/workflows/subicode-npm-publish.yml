@@ -1,0 +1,47 @@
+name: Publish verified SubiCode npm CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: Native package workflow run for this exact source commit
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: subicode-npm-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.run-id }}
+          pattern: subicode-npm-*
+          path: artifacts/npm-downloads
+      - name: Arrange platform candidates
+        run: |
+          mkdir -p artifacts/npm
+          for target in win32-x64 win32-arm64 darwin-x64 darwin-arm64 linux-x64 linux-arm64; do
+            mv "artifacts/npm-downloads/subicode-npm-$target" "artifacts/npm/$target"
+          done
+      - name: Verify all native package qualifications and checksums
+        run: node script/publish-subicode-npm.mjs artifacts/npm
+      - name: Publish native packages, then the public launcher
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: node script/publish-subicode-npm.mjs artifacts/npm --publish --provenance

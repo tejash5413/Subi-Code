@@ -20,9 +20,9 @@
 
 ## Native candidate builds
 
-Set OPENCODE_VERSION=2.0.0 and OPENCODE_CHANNEL=dev, then run `bun run packages/desktop/scripts/distribute.ts`. This builds for the current host architecture. Run `node packages/desktop/scripts/qualify-distribution.mjs artifacts/platforms/2.0.0/<platform>` (use xvfb-run on Linux).
+Set OPENCODE_VERSION=2.0.0 and OPENCODE_CHANNEL=prod, then run `bun run packages/desktop/scripts/distribute.ts`. This builds for the current host architecture. Run `node packages/desktop/scripts/qualify-distribution.mjs artifacts/platforms/2.0.0/<platform>` (use xvfb-run on Linux).
 
-The native workflow creates unsigned qualification artifacts and does not publish a release. It runs on push to dev and can be dispatched when present on the default branch. All six targets must be checked before claiming all-platform support.
+The native workflow creates unsigned qualification artifacts and does not itself publish a release. It runs on push to dev and can be dispatched when present on the default branch. All six targets must be checked before claiming all-platform support. npm CLI publication is a separate manual workflow with native installation and checksum gates; see [npm publishing](npm-publishing.md).
 
 The VS Code extension uses product version 2.0.0 for this requested local release installation. An existing installation with a higher development extension version requires an explicit forced VSIX install. Marketplace publication must follow that marketplace's monotonic version rules rather than silently downgrading a published listing.
 

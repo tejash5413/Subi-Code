@@ -63,11 +63,12 @@ export async function stageDistribution(root: string, cliDist: string, output: s
     path.join(cli, "package.json"),
     JSON.stringify(
       {
-        name: "@learnsmart/subi-cli",
+        name: `@subicodeagent/subi-cli-${target.vscode}`,
         version: manifest.version,
         description: "SubiCode terminal client",
         license: "MIT",
         homepage: "https://stlearnsmart.in/subi-code",
+        repository: { type: "git", url: "git+https://github.com/tejash5413/Subi-Code.git" },
         bin: { subi: "bin/subi.cjs" },
         engines: { node: ">=22.0.0" },
         os: [platform],
@@ -109,4 +110,27 @@ export async function stageDistribution(root: string, cliDist: string, output: s
   )
 
   return { cli, extension, target, version: manifest.version }
+}
+
+/** Stage the public launcher independently of the native packages it selects. */
+export async function stageNpmWrapper(root: string, output: string, version: string) {
+  const source = path.join(root, "sdks/npm")
+  const manifest = await Bun.file(path.join(source, "package.json")).json()
+  manifest.version = version
+  manifest.optionalDependencies = Object.fromEntries(
+    CLI_BINARIES.map((target) => [`@subicodeagent/subi-cli-${target.os}-${target.cpu}`, version]),
+  )
+  await mkdir(output)
+  await mkdir(path.join(output, "bin"))
+  for (const [input, file] of [
+    [path.join(source, "bin/subi.cjs"), "bin/subi.cjs"],
+    [path.join(source, "README.md"), "README.md"],
+    [path.join(root, "LICENSE"), "LICENSE"],
+  ]) {
+    const text = await Bun.file(input).text()
+    await Bun.write(path.join(output, file), text.replace(/\r\n/g, "\n"))
+  }
+  await chmod(path.join(output, "bin/subi.cjs"), 0o755)
+  await Bun.write(path.join(output, "package.json"), JSON.stringify(manifest, null, 2) + "\n")
+  return output
 }

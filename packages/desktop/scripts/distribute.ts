@@ -1,6 +1,6 @@
 import { mkdir } from "node:fs/promises"
 import path from "node:path"
-import { distributionTarget, stageDistribution } from "./distribution-packages"
+import { distributionTarget, stageDistribution, stageNpmWrapper } from "./distribution-packages"
 
 const root = path.resolve(import.meta.dirname, "../../..")
 
@@ -78,11 +78,19 @@ const qualification = path.join(output, "packages/qualification.json")
 await Bun.write(
   qualification,
   JSON.stringify(
-    { ...(await Bun.file(qualification).json()), nativeExecution: "passed: version and MCP command" },
+    {
+      ...(await Bun.file(qualification).json()),
+      channel: env.OPENCODE_CHANNEL,
+      nativeExecution: "passed: version and MCP command",
+    },
     null,
     2,
   ) + "\n",
 )
+
+const wrapper = await stageNpmWrapper(root, path.join(output, "packages/npm-wrapper"), version)
+await run(["npm", "pack", "--ignore-scripts", "--pack-destination", output], wrapper)
+await run(["node", path.join(root, "script/qualify-subicode-npm.mjs"), output])
 
 await run([process.execPath, "run", "prebuild"], path.join(root, "packages/desktop"))
 

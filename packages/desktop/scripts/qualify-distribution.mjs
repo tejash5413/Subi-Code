@@ -5,6 +5,7 @@ import { tmpdir } from "node:os"
 import path from "node:path"
 import net from "node:net"
 import { fileURLToPath } from "node:url"
+import { windowsCliScript } from "./vscode-cli.mjs"
 
 // Execute the packaged products in disposable profiles, never the developer's accounts.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..")
@@ -71,6 +72,8 @@ delete result.failure
 
 const platform = `${process.platform}-${process.arch}`
 
+const desktopId = `in.stlearnsmart.subi.desktop${result.channel === "prod" ? "" : ".dev"}`
+
 const cli = path.join(output, "packages/cli/bin", process.platform === "win32" ? "subi.exe" : "subi")
 
 const desktop = path.join(
@@ -79,10 +82,7 @@ const desktop = path.join(
   ...new Map([
     ["win32", [process.arch === "arm64" ? "win-arm64-unpacked" : "win-unpacked", "SubiCode.exe"]],
     ["darwin", [process.arch === "arm64" ? "mac-arm64" : "mac", "SubiCode.app/Contents/MacOS/SubiCode"]],
-    [
-      "linux",
-      [process.arch === "arm64" ? "linux-arm64-unpacked" : "linux-unpacked", "in.stlearnsmart.subi.desktop.dev"],
-    ],
+    ["linux", [process.arch === "arm64" ? "linux-arm64-unpacked" : "linux-unpacked", desktopId]],
   ]).get(process.platform),
 )
 
@@ -226,9 +226,7 @@ try {
   await run(
     process.platform === "win32" ? code : cliPath,
     [
-      ...(process.platform === "win32"
-        ? [process.argv[4] ?? path.resolve(cliPath, "../../resources/app/out/cli.js")]
-        : []),
+      ...(process.platform === "win32" ? [process.argv[4] ?? (await windowsCliScript(cliPath))] : []),
       ...args,
       "--install-extension",
       path.join(output, `subicode-${platform}.vsix`),
