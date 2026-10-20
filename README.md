@@ -8,18 +8,18 @@
 
 ## Release status
 
-The product version is **2.0.0**. This repository contains the complete SubiCode 2.0 source, replacing the earlier extension-only project. The `dev` branch holds the release candidate; `main` is updated after validation.
+The product version is **2.0.0**. This repository contains the complete SubiCode 2.0 source, replacing the earlier extension-only project. `main` contains the integrated source; ongoing development happens on `dev` and focused feature branches.
 
 **A source commit is not a published stable release.** Download only assets attached to a tagged release. If no matching asset is listed, that platform is not yet available. Development and unsigned CI packages are intended for qualification.
 
 | Interface | Targets | Qualification status |
 | --- | --- | --- |
-| CLI | Windows, macOS, Linux; x64 and ARM64 | Windows x64 development workflow checked; release candidate verification pending |
-| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64 development host checked; release candidate verification pending |
-| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64 development startup checked; native release qualification pending |
+| CLI | Windows, macOS, Linux; x64 and ARM64 | Windows x64 2.0.0 installed and verified; other native targets pending CI |
+| VS Code extension | Platform-specific VSIX for the same six targets | Windows x64 2.0.0 installed; native host and terminal reuse passed; other targets pending CI |
+| Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows x64 2.0.0 installed and startup verified; unsigned; other native targets pending CI |
 | Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
 
-See the [release readiness audit](docs/subicode-release-readiness-2026-10-20.md) for test evidence and remaining release gates. Live account billing, provider permissions, signing and native platform checks are separate from source type checks.
+See the [Windows 2.0.0 verification](docs/subicode-windows-2.0.0-verification.md) for current evidence and the [release readiness audit](docs/subicode-release-readiness-2026-10-20.md) for remaining release gates. Live account billing, provider permissions, signing and native platform checks are separate from source type checks.
 
 ## What is included
 
