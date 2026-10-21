@@ -7,12 +7,14 @@ const { spawnSync } = require("node:child_process")
 const { test } = require("node:test")
 const { gzipSync } = require("node:zlib")
 
+const version = require("../package.json").version
+
 function launcherArchive(mode, readme = "launcher fixture") {
   const chunks = []
   for (const [name, content] of [
     ["package/LICENSE", "license fixture"],
     ["package/bin/subi.cjs", "#!/usr/bin/env node\n"],
-    ["package/package.json", JSON.stringify({ name: "@subicodeagent/subi-cli", version: "2.0.0" })],
+    ["package/package.json", JSON.stringify({ name: "@subicodeagent/subi-cli", version })],
     ["package/README.md", readme],
   ]) {
     const bytes = Buffer.from(content)
@@ -44,7 +46,7 @@ test("publication preflight rejects missing qualification and modified packages"
             : Buffer.from(`fixture ${name}`)
         const item = {
           name,
-          filename: `${name.replace(/^@/, "").replace("/", "-")}-2.0.0.tgz`,
+          filename: `${name.replace(/^@/, "").replace("/", "-")}-${version}.tgz`,
           integrity: `sha512-${createHash("sha512").update(bytes).digest("base64")}`,
         }
         await fs.writeFile(path.join(directory, item.filename), bytes)
@@ -53,7 +55,7 @@ test("publication preflight rejects missing qualification and modified packages"
       await fs.writeFile(
         path.join(directory, "packages/qualification.json"),
         JSON.stringify({
-          version: "2.0.0",
+          version,
           channel: "prod",
           platform,
           nativeExecution: "passed: fixture",

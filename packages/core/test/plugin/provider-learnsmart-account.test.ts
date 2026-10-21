@@ -51,6 +51,7 @@ function backend(accountType: "school" | "individual") {
             {
               modelKey: "assigned-1",
               displayName: "Assigned coding model",
+              freeCoding: true,
               contextLength: 131_072,
               capabilities: { inputModalities: ["text"], outputModalities: ["text"], toolCalling: true },
               ...(state.corrupt ? { upstreamModelId: "must-not-leak" } : {}),
@@ -180,7 +181,7 @@ for (const accountType of ["school", "individual"] as const) {
         expect(snapshot).toMatchObject({
           status: "allowed",
           accountType,
-          models: [{ displayName: "Assigned coding model", contextLength: 131_072 }],
+          models: [{ displayName: "Assigned coding model", contextLength: 131_072, freeCoding: true }],
           subscription: { active: true, renewalDateMs: 1_800_000_000_000 },
           inferenceAvailable: false,
         })

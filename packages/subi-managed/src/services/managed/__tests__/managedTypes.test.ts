@@ -285,3 +285,9 @@ void test('usage response: missing chatAvailable fails closed', () => {
   assert.equal(validateUsageResponse({ allowed: true, usage: null, chatAvailable: true }), null);
   assert.equal(validateUsageResponse({ nope: 1 }), null);
 });
+
+void test('free model hint accepts only an explicit backend boolean',()=>{
+ const model={modelKey:'mdl_free',displayName:'Free',capabilities:CAPS,freeCoding:true};
+ assert.equal(validateManagedModel(model)?.freeCoding,true);
+ for(const value of ['true',1,{},null])assert.equal(validateManagedModel({...model,freeCoding:value}),null);
+});

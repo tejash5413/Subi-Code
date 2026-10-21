@@ -1,47 +1,30 @@
 import { TextAttributes, type ColorInput } from "@opentui/core"
-import { For } from "solid-js"
+import { For, Show } from "solid-js"
 import { useTerminalDimensions } from "@opentui/solid"
-import { go, logo } from "../logo"
-
+import { wordmark } from "../logo"
 import { useTheme } from "../context/theme"
 
 export function Logo(props: { color?: ColorInput; compact?: boolean } = {}) {
   const dimensions = useTerminalDimensions()
   const theme = useTheme()
-
   return (
-    <box>
-      {dimensions().height < 12 ? null : dimensions().width < 26 ? (
-        <For each={go.right.slice(1)}>
+    <box alignItems="center">
+      <Show
+        when={!props.compact && dimensions().width >= wordmark[0].length + 4 && dimensions().height >= 20}
+        fallback={
+          <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
+            SubiCode
+          </text>
+        }
+      >
+        <For each={wordmark}>
           {(line) => (
             <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
               {line}
             </text>
           )}
         </For>
-      ) : dimensions().width < 50 || props.compact ? (
-        <box flexDirection="row">
-          <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
-            SUBI{" "}
-          </text>
-          <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
-            CODE
-          </text>
-        </box>
-      ) : (
-        <For each={logo.left}>
-          {(line, index) => (
-            <box flexDirection="row" gap={1}>
-              <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
-                {line}
-              </text>
-              <text fg={props.color ?? theme.text.base} attributes={TextAttributes.BOLD} selectable={false}>
-                {logo.right[index()]}
-              </text>
-            </box>
-          )}
-        </For>
-      )}
+      </Show>
     </box>
   )
 }

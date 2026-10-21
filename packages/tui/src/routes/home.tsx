@@ -1,9 +1,8 @@
 import { Prompt, type PromptRef } from "../component/prompt"
 import { Logo } from "../component/logo"
-import { createEffect, createMemo, createSignal, onMount, Show, untrack } from "solid-js"
-import { TextAttributes } from "@opentui/core"
+import { createEffect, createMemo, createSignal, onMount, Show, For, untrack } from "solid-js"
 import { useArgs } from "../context/args"
-import { useRouteData } from "../context/route"
+import { useRouteData, useRoute } from "../context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { useEditorContext } from "../context/editor"
@@ -15,6 +14,8 @@ import { useTerminalDimensions } from "@opentui/solid"
 import { useTheme } from "../context/theme"
 import { useUpdateNotification } from "../context/update-notification"
 import { useExit } from "../context/exit"
+import { Product } from "@opencode/util/product"
+import { withTimestampedFallback } from "@opencode/util/session-title-fallback"
 import { FadeInText } from "../component/fade-in-text"
 
 let once = false
@@ -25,6 +26,7 @@ const placeholder = {
 
 export function Home() {
   const route = useRouteData("home")
+  const navigate = useRoute().navigate
   const promptRef = usePromptRef()
   const [ref, setRef] = createSignal<PromptRef | undefined>()
   const args = useArgs()
@@ -40,7 +42,19 @@ export function Home() {
   }
   // Global MCP elicitations can arrive without a session route, so keep them reachable from Home.
   const currentLocation = () => route.location ?? data.location.default()
+  const learnsmartConnected = createMemo(() =>
+    data.location.integration
+      .list(currentLocation())
+      ?.some((item) => item.id === "learnsmart" && item.connections.length > 0),
+  )
   const forms = createMemo(() => data.session.form.list("global", currentLocation()) ?? [])
+  const recent = createMemo(() =>
+    data.session
+      .list()
+      .filter((session) => !session.parentID && session.location?.directory === currentLocation()?.directory)
+      .toSorted((a, b) => b.time.updated - a.time.updated)
+      .slice(0, 3),
+  )
   let sent = false
 
   // Track only the route location and (when absent) the default location; location.set
@@ -92,33 +106,63 @@ export function Home() {
         paddingRight={dimensions().width < 44 ? 1 : 2}
       >
         <box width="100%" flexDirection="row" gap={3} paddingTop={1} paddingBottom={1} flexShrink={0}>
-          <text fg={theme.text.base} attributes={TextAttributes.BOLD} flexShrink={0}>
-            subi code
-          </text>
           <text fg={theme.text.muted} truncate wrapMode="none" flexShrink={1}>
             {workspace()}
           </text>
+          <box flexGrow={1} />
+          <Show when={learnsmartConnected() && dimensions().width >= 60}>
+            <text fg={theme.text.muted}>
+              <span style={{ fg: theme.text.feedback.success.base }}>● </span>LearnSmart · Connected
+            </text>
+          </Show>
         </box>
         <box
           width="100%"
-          maxWidth={84}
+          maxWidth={96}
           zIndex={1000}
-          paddingTop={dimensions().height >= 30 ? 3 : dimensions().height >= 24 ? 1 : 0}
+          paddingTop={
+            dimensions().height >= 30
+              ? Math.max(2, Math.floor(dimensions().height / 8))
+              : dimensions().height >= 24
+                ? 1
+                : 0
+          }
           flexShrink={0}
           position="relative"
         >
           <Show when={dimensions().height >= 12}>
             <box id="welcome-wordmark" alignItems="center" gap={1} paddingBottom={dimensions().height >= 26 ? 2 : 1}>
               <Logo color={theme.text.base} compact={dimensions().height < 26} />
+              <text fg={theme.text.muted}>{Product.version}</text>
               <Show when={dimensions().width >= 44 && dimensions().height >= 30}>
                 <text fg={theme.text.muted} wrapMode="word">
-                  Ask a question or describe a change.
+                  What would you like to work on?
                 </text>
               </Show>
             </box>
           </Show>
           <UpdateNotification width={Math.max(1, Math.min(84, dimensions().width - 4))} />
           <Prompt ref={bind} placeholders={placeholder} disabled={forms().length > 0} />
+          <Show when={dimensions().height >= 34 && recent().length > 0}>
+            <box alignItems="center" paddingTop={2}>
+              <box gap={0} maxWidth="100%">
+                <text fg={theme.text.muted}>Recent sessions</text>
+                <For each={recent()}>
+                  {(session, index) => (
+                    <text
+                      fg={theme.text.base}
+                      truncate
+                      wrapMode="none"
+                      onMouseUp={() => navigate({ type: "session", sessionID: session.id })}
+                    >
+                      <span style={{ fg: theme.text.muted }}>{String(index() + 1).padStart(2, "0")} </span>
+                      {withTimestampedFallback(session)}
+                    </text>
+                  )}
+                </For>
+              </box>
+            </box>
+          </Show>
         </box>
         <box flexGrow={1} minHeight={0} />
       </box>

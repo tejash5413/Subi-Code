@@ -9,6 +9,54 @@ import { emptyThemeSource, tmpdir } from "../fixture/fixture"
 import { TestTuiContexts } from "../fixture/tui-environment"
 import { createTuiResolvedConfig } from "../fixture/tui-runtime"
 
+test.each([undefined, "opencode", "system"])("Silver is the default while preserving saved theme %s", async (name) => {
+  await using temporary = await tmpdir()
+  let settings: Info = name ? { theme: { name, mode: "light" } } : {}
+  let config!: ReturnType<typeof useConfig>
+  let themes!: ReturnType<typeof useThemes>
+  function Probe() {
+    config = useConfig()
+    themes = useThemes()
+    return null
+  }
+  const app = await testRender(() => (
+    <TestTuiContexts paths={{ state: temporary.path }}>
+      <ConfigProvider
+        config={createTuiResolvedConfig(settings)}
+        service={{
+          get: async () => settings,
+          update: async (mutate) => {
+            const next = structuredClone(settings)
+            mutate(next)
+            settings = next
+            return next
+          },
+        }}
+      >
+        <ThemeProvider mode="dark" source={emptyThemeSource}>
+          <Probe />
+        </ThemeProvider>
+      </ConfigProvider>
+    </TestTuiContexts>
+  ))
+  try {
+    app.renderer.start()
+    await app.waitForFrame(() => themes?.ready === true)
+    expect(themes.selected).toBe(name ?? "silver")
+    expect(themes.has("silver")).toBeTrue()
+    expect(themes.mode()).toBe(name ? "light" : "dark")
+    expect(themes.set("silver")).toBeTrue()
+    await app.waitForFrame(() => config.data.theme?.name === "silver")
+    expect(themes.supports("light")).toBeTrue()
+    expect(themes.supports("dark")).toBeTrue()
+    expect(themes.setMode("dark")).toBeTrue()
+    await app.waitForFrame(() => config.data.theme?.mode === "dark")
+    expect(themes.currentTokens().background.base.toInts().slice(0, 3)).toEqual([20, 20, 20])
+  } finally {
+    app.renderer.destroy()
+  }
+})
+
 test("offers opencode2 only while the new designs experiment is enabled", async () => {
   await using temporary = await tmpdir()
   const settings: Info = {}

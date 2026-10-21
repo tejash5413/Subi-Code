@@ -8,13 +8,13 @@
 
 ## Release status
 
-The product version is **2.0.0**. This repository contains the complete SubiCode 2.0 source, replacing the earlier extension-only project. `main` contains the integrated source; ongoing development happens on `dev` and focused feature branches.
+The product version is **2.0.1**. This repository contains the complete SubiCode 2.0 source, replacing the earlier extension-only project. `main` contains the integrated source; ongoing development happens on `dev` and focused feature branches.
 
 **A source commit is not a published stable release.** Download only assets attached to a tagged release. If no matching asset is listed, that platform is not yet available. Development and unsigned CI packages are intended for qualification.
 
 | Interface | Targets | Qualification status |
 | --- | --- | --- |
-| CLI | Windows, macOS, Linux; x64 and ARM64 | Published 2.0.0 on npm; all seven package checksums verified; all six native installation checks passed |
+| CLI | Windows, macOS, Linux; x64 and ARM64 | 2.0.1 candidate being qualified; 2.0.0 remains published until all seven updated npm packages are verified |
 | VS Code extension | Platform-specific VSIX for the same six targets | Windows and Linux x64/ARM64 downloads published; native host and terminal reuse passed; macOS checks pending |
 | Desktop | Windows installer, macOS DMG/ZIP, Linux AppImage/DEB/RPM | Windows and Linux x64/ARM64 packages published and qualified; unsigned; macOS downloads pending native checks |
 | Mobile browser | Connect to a running computer through device pairing | Real-device verification pending; no standalone mobile installer |
@@ -42,7 +42,7 @@ Provider-hosted free models may be restricted to that provider's own client. Inc
 5. **CLI:** with Node.js 22 or newer, run this in CMD, PowerShell or your Unix terminal:
 
 ```sh
-npm install -g @subicodeagent/subi-cli@2.0.0
+npm install -g @subicodeagent/subi-cli@latest
 subi --version
 cd /path/to/your/project
 subi
@@ -50,7 +50,7 @@ subi
 
 npm selects the correct native executable for Windows, macOS or glibc Linux on x64 or ARM64. Keep optional dependencies enabled. Desktop installers and VSIX files are separate downloads; a VS Code Marketplace listing is not announced.
 
-All seven npm packages are public and their SHA-512 checksums match the qualified candidate. See the [npm verification record](docs/subicode-npm-2.0.0-verification.md) and [npm publishing guide](docs/npm-publishing.md).
+The previous 2.0.0 npm packages are public and verified; the 2.0.1 candidate requires fresh native qualification and publication. See the [npm verification record](docs/subicode-npm-2.0.0-verification.md) and [npm publishing guide](docs/npm-publishing.md).
 
 ## First session
 
@@ -89,17 +89,17 @@ Build native CLI, VSIX and desktop packages **on the target OS and CPU**:
 
 ```sh
 # macOS / Linux qualification build
-OPENCODE_VERSION=2.0.0 OPENCODE_CHANNEL=prod bun run packages/desktop/scripts/distribute.ts
+OPENCODE_VERSION=2.0.1 OPENCODE_CHANNEL=prod bun run packages/desktop/scripts/distribute.ts
 ```
 
 ```powershell
 # Windows PowerShell qualification build
-$env:OPENCODE_VERSION = "2.0.0"
+$env:OPENCODE_VERSION = "2.0.1"
 $env:OPENCODE_CHANNEL = "prod"
 bun run packages/desktop/scripts/distribute.ts
 ```
 
-Output: `artifacts/platforms/2.0.0/<platform>/`. Qualification builds are unsigned. Production signing and publication require a separate approved release process. Internal package names and environment variables retained for backend compatibility are not product display names.
+Output: `artifacts/platforms/2.0.1/<platform>/`. Qualification builds are unsigned. Production signing and publication require a separate approved release process. Internal package names and environment variables retained for backend compatibility are not product display names.
 
 ## Verify changes
 

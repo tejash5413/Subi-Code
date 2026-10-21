@@ -8,7 +8,7 @@ on:
       version:
         description: Explicit SubiCode build version
         required: true
-        default: 2.0.0
+        default: 2.0.1
       qualification_run_id:
         description: Requalify existing native artifacts from this run instead of rebuilding
         required: false
@@ -54,9 +54,9 @@ jobs:
       run:
         shell: bash
     env:
-      OPENCODE_VERSION: ${{ inputs.version || '2.0.0' }}
+      OPENCODE_VERSION: ${{ inputs.version || '2.0.1' }}
       OPENCODE_CHANNEL: prod
-      SUBICODE_OUTPUT: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}
+      SUBICODE_OUTPUT: artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}
       # Desktop artifacts remain unsigned. npm publication is a separate, manual, qualified step.
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
     steps:
@@ -94,8 +94,8 @@ jobs:
         with:
           name: subicode-npm-${{ matrix.platform }}
           path: |
-            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/subicodeagent-subi-cli*.tgz
-            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/packages/qualification.json
+            artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/subicodeagent-subi-cli*.tgz
+            artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/packages/qualification.json
           if-no-files-found: error
           retention-days: 14
       - name: Compile extension-host qualification
@@ -114,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: subicode-${{ matrix.platform }}
-          path: artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/
+          path: artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/
           if-no-files-found: error
           retention-days: 14
       - name: Save native qualification results
@@ -123,9 +123,9 @@ jobs:
         with:
           name: subicode-qualification-${{ matrix.platform }}
           path: |
-            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/packages/qualification.json
-            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/desktop-qualification.png
-            artifacts/platforms/${{ inputs.version || '2.0.0' }}/${{ matrix.platform }}/vscode-logs/
+            artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/packages/qualification.json
+            artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/desktop-qualification.png
+            artifacts/platforms/${{ inputs.version || '2.0.1' }}/${{ matrix.platform }}/vscode-logs/
           if-no-files-found: error
           retention-days: 14
       - name: Prepare qualified public download files

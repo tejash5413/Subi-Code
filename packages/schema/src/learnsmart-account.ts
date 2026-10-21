@@ -2,6 +2,7 @@ export * as LearnSmartAccount from "./learnsmart-account.js"
 
 import { Schema } from "effect"
 import { Rpc } from "./rpc.js"
+import { optional } from "./schema.js"
 
 const balance = Schema.NullOr(Schema.Number)
 export const Snapshot = Schema.Struct({
@@ -12,6 +13,7 @@ export const Snapshot = Schema.Struct({
     Schema.Struct({
       modelKey: Schema.String,
       displayName: Schema.String,
+      freeCoding: optional(Schema.Boolean),
       contextLength: Schema.optional(Schema.Number),
     }),
   ),

@@ -62,6 +62,7 @@ it.live(
                 {
                   modelKey: "mdl_native",
                   displayName: "Assigned native coding model",
+                  freeCoding: true,
                   contextLength: 131072,
                   capabilities: { inputModalities: ["text"], outputModalities: ["text"], toolCalling: true },
                 },
@@ -139,6 +140,7 @@ it.live(
       const secondBody = yield* Effect.promise(() => second.request.clone().json())
       expect(firstBody).toEqual(secondBody)
       expect(firstBody).toMatchObject({
+        freeModelOnly: true,
         protocolVersion: 1,
         modelKey: "mdl_native",
         agentMode: "build",

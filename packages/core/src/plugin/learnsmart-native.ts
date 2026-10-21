@@ -16,7 +16,18 @@ import { Provider } from "../provider.js"
 export const nativeOrigin = "https://asia-south1-learnsmart-c2a7e.cloudfunctions.net/subiManagedAgentApi"
 const integrationID = Integration.ID.make("learnsmart")
 const readActions = new Set(["read", "glob", "grep", "list", "lsp", "skill", "webfetch", "websearch"])
-const readTools = new Set(["read", "glob", "grep", "ls", "list", "webfetch", "websearch", "question", "skill"])
+const readTools = new Set([
+  "read",
+  "glob",
+  "grep",
+  "ls",
+  "list",
+  "webfetch",
+  "websearch",
+  "question",
+  "skill",
+  "todowrite",
+])
 const nativeBody = Schema.Struct({
   messages: Schema.Array(Schema.Unknown),
   tools: Schema.optional(Schema.Array(Schema.Unknown)),
@@ -66,12 +77,14 @@ export const registerLearnSmartNative = Effect.fn(function* (
     if (value?.type !== "oauth" || value.methodID !== "learnsmart-browser") return
     return { connection, value, key: `credential:${connection.id}` }
   })
+  const freeModels = new Set<string>()
   const loading = yield* Semaphore.make(1)
   const load = Effect.fn(function* () {
     const selected = yield* resolve()
     if (IntegrationConnection.key(loaded.connection) !== selected?.key || !selected) {
       loaded.ready = false
       loaded.models = []
+      freeModels.clear()
       loaded.connection = undefined
       yield* ctx.provider.reload()
     }
@@ -83,6 +96,8 @@ export const registerLearnSmartNative = Effect.fn(function* (
     }).pipe(Effect.orElseSucceed(() => []))
     const current = yield* resolve()
     if (current?.key !== selected.key) return
+    freeModels.clear()
+    for (const model of models) if (model.freeCoding === true) freeModels.add(model.modelKey)
     loaded.connection = selected.connection
     loaded.models = models
       .filter((model) => model.capabilities.toolCalling && model.contextLength && model.contextLength > 0)
@@ -165,6 +180,7 @@ export const registerLearnSmartNative = Effect.fn(function* (
         const body = {
           protocolVersion: 1,
           modelKey: event.model.id,
+          ...(freeModels.has(event.model.id) ? {freeModelOnly:true} : {}),
           agentMode:
             event.kind !== "primary" || event.agent === "ask" ? "ask" : event.agent === "plan" ? "plan" : "build",
           clientRunId: `nat_${createHash("sha256")

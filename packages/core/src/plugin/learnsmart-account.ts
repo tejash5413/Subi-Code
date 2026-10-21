@@ -100,6 +100,7 @@ function snapshot(state: ReturnType<ManagedSessionController["getState"]>): Lear
     models: projected.models.map((model) => ({
       modelKey: model.modelKey,
       displayName: model.displayName,
+      ...(model.freeCoding === true ? {freeCoding:true} : {}),
       ...(model.contextLength === undefined || model.contextLength === null
         ? {}
         : { contextLength: model.contextLength }),

@@ -12,6 +12,7 @@ const MODELS: ManagedModel[] = [
     displayName: 'Subi One',
     capabilities: { inputModalities: ['text'], outputModalities: ['text'], toolCalling: false },
     contextLength: 1000,
+    freeCoding: true,
   },
 ];
 const LIMIT: ManagedMonthlyLimit = { configured: true, monthlyTokenLimit: 100000, period: 'calendar_month' };
@@ -171,6 +172,7 @@ void test('webview projection carries usage and fail-closed sendState', async ()
   const controller = new ManagedSessionController(fakeAuth(), svc.port, memStore());
   await controller.bootstrap();
   const wire = toManagedWebviewState(controller.getState());
+  assert.equal(wire.models[0]?.freeCoding,true);
   assert.equal(wire.usage.status, 'ready');
   assert.equal(wire.usage.chatAvailable, true);
   assert.equal(wire.usage.usage?.usedTokens, 1200);

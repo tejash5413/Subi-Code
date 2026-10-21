@@ -1,10 +1,16 @@
 import { useData } from "../../context/data"
-import { createMemo, Show } from "solid-js"
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useConfig } from "../../config"
 import { Slot } from "../../plugin/render"
 import { withTimestampedFallback } from "@opencode/util/session-title-fallback"
 import { TextAttributes } from "@opentui/core"
+import { Product } from "@opencode/util/product"
+import { Keymap } from "../../context/keymap"
+import { useDialog } from "../../ui/dialog"
+import { SidebarWork } from "./sidebar-work"
+import { sidebarActivity, sidebarStatus } from "../../util/sidebar"
+import { sessionFamily } from "../../util/session"
 import "../../component/title-shimmer"
 
 import { getScrollAcceleration } from "../../util/scroll"
@@ -16,6 +22,62 @@ export function Sidebar(props: { sessionID: string }) {
   const config = useConfig().data
   const session = createMemo(() => data.session.get(props.sessionID))
   const scrollAcceleration = createMemo(() => getScrollAcceleration(config))
+  const dialog = useDialog()
+  const [selected, setSelected] = createSignal<string>()
+  const [loading, setLoading] = createSignal(false)
+  const [failed, setFailed] = createSignal(false)
+  const activity = createMemo(() => sidebarActivity(data.session.message.list(selected() ?? "")))
+  const back = () => setSelected(undefined)
+  createEffect(() => {
+    props.sessionID
+    back()
+  })
+  createEffect(() => {
+    const id = selected()
+    if (!id) return
+    let current = true
+    setLoading(true)
+    setFailed(false)
+    void data.session.message
+      .sync(id)
+      .catch(() => {
+        if (current) setFailed(true)
+      })
+      .finally(() => {
+        if (current) setLoading(false)
+      })
+    onCleanup(() => {
+      current = false
+    })
+  })
+  Keymap.createLayer(() => ({
+    mode: "global",
+    priority: 20,
+    enabled: () => !!selected() && dialog.stack.length === 0,
+    commands: [{ bind: "escape", title: "Back to sidebar overview", run: back }],
+  }))
+  Keymap.createLayer(() => ({
+    mode: "global",
+    commands: [
+      {
+        id: "sidebar.agents.inspect",
+        title: "Inspect parallel agent in sidebar",
+        group: "Session",
+        palette: true,
+        enabled: () =>
+          sessionFamily(data.session.list(), props.sessionID).some(({ session }) => session.id !== props.sessionID),
+        run: () => {
+          const first = sessionFamily(data.session.list(), props.sessionID).find(
+            ({ session }) => session.id !== props.sessionID,
+          )
+          if (first) {
+            dialog.clear()
+            setSelected(first.session.id)
+          }
+        },
+      },
+    ],
+  }))
 
   return (
     <Show when={session()}>
@@ -29,6 +91,11 @@ export function Sidebar(props: { sessionID: string }) {
         paddingRight={2}
         position="relative"
       >
+        <box flexShrink={0} paddingBottom={1} alignItems="flex-end">
+          <text fg={theme.text.base} attributes={TextAttributes.BOLD}>
+            SubiCode {Product.version}
+          </text>
+        </box>
         <box flexShrink={0} paddingRight={2} paddingBottom={1}>
           <title_shimmer
             fg={theme.text.base}
@@ -67,7 +134,48 @@ export function Sidebar(props: { sessionID: string }) {
           }}
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
-            <Slot path="sidebar.content" input={{ sessionID: props.sessionID }} />
+            <Show
+              when={selected()}
+              fallback={
+                <>
+                  <Slot path="sidebar.content" input={{ sessionID: props.sessionID }} />
+                  <SidebarWork sessionID={props.sessionID} onSelect={setSelected} />
+                </>
+              }
+            >
+              {(id) => (
+                <>
+                  <text fg={theme.text.action.primary.selected} onMouseUp={back}>
+                    ‹ Back · Esc
+                  </text>
+                  <box>
+                    <text fg={theme.text.base} wrapMode="word">
+                      <b>{withTimestampedFallback(data.session.get(id()))}</b>
+                    </text>
+                    <text fg={theme.text.muted}>
+                      {sidebarStatus(data.session.message.list(id()), data.session.status(id()) === "running")} ·
+                      read-only
+                    </text>
+                  </box>
+                  <Show when={loading()}>
+                    <text fg={theme.text.muted}>Loading activity…</text>
+                  </Show>
+                  <Show when={failed()}>
+                    <text fg={theme.text.feedback.error.base}>Activity unavailable. Go back and retry.</text>
+                  </Show>
+                  <For each={activity()}>
+                    {(text) => (
+                      <text fg={theme.text.base} wrapMode="word">
+                        {text}
+                      </text>
+                    )}
+                  </For>
+                  <Show when={!loading() && !failed() && !activity().length}>
+                    <text fg={theme.text.muted}>No activity recorded yet.</text>
+                  </Show>
+                </>
+              )}
+            </Show>
           </box>
         </scrollbox>
 

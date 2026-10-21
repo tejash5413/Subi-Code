@@ -5,7 +5,7 @@ const documentation = `${website}/docs`
 export const Product = {
   name: "SubiCode",
   // Public product version; runtime build IDs stay separate for compatibility and diagnostics.
-  version: "2.0.0",
+  version: "2.0.1",
   website,
   documentation,
   guides: {

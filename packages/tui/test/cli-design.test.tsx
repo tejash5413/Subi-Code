@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test"
 import { TextareaRenderable } from "@opentui/core"
 import { createAppFixture } from "./fixture/app"
-import { logo } from "../src/logo"
+import { wordmark } from "../src/logo"
 import { json } from "./fixture/tui-client"
 
 test.each([
@@ -13,7 +13,7 @@ test.each([
   await using setup = await createAppFixture({ width, height })
   await setup.ready
   await setup.waitForFrame(
-    (frame) => frame.includes("subi code") && setup.renderer.currentFocusedRenderable instanceof TextareaRenderable,
+    (frame) => frame.includes("2.0.1") && setup.renderer.currentFocusedRenderable instanceof TextareaRenderable,
   )
   const input = setup.renderer.currentFocusedRenderable
   if (!(input instanceof TextareaRenderable)) throw new Error("Prompt is not focused")
@@ -23,10 +23,10 @@ test.each([
   expect(input.x + input.width).toBeLessThanOrEqual(width)
   expect(input.y + input.height).toBeLessThanOrEqual(height)
   const frame = setup.captureCharFrame()
-  expect(frame).toContain("subi code")
+  expect(frame).toContain("2.0.1")
   if (height >= 20) {
-    if (width >= 50) expect(frame).toContain(logo.left[0])
-    else expect(frame).toContain("SUBI CODE")
+    if (width >= wordmark[0].length + 4 && height >= 26) expect(frame).toContain(wordmark[0].trim())
+    else expect(frame).toContain("SubiCode")
     expect(frame).toContain("paste")
     expect(frame).toContain("history")
     if (width < 44) expect(frame).toContain("ctrl+p menu")
@@ -111,25 +111,26 @@ test("welcome wordmark stays while typing, leaves on send, and returns for a fre
   await setup.ready
   await setup.waitForFrame(
     (frame) =>
-      frame.includes(logo.left[0]) &&
+      frame.includes(wordmark[0].trim()) &&
       frame.includes("Build · Sample model") &&
       setup.renderer.currentFocusedRenderable instanceof TextareaRenderable,
   )
   const first = setup
     .captureCharFrame()
     .split("\n")
-    .find((line) => line.includes(logo.left[0]))!
-  const width = logo.left[0].length + 1 + logo.right[0].length
-  expect(Math.abs(first.indexOf(logo.left[0]) + width / 2 - 50)).toBeLessThanOrEqual(1)
+    .find((line) => line.includes(wordmark[2].trim()))!
+  const width = wordmark[2].trim().length
+  expect(Math.abs(first.indexOf(wordmark[2].trim()) + width / 2 - 50)).toBeLessThanOrEqual(1)
   await setup.mockInput.typeText("Check the welcome screen")
   expect(setup.renderer.root.findDescendantById("welcome-wordmark")).toBeDefined()
   expect(submitted).toBe(0)
   await setup.mockInput.pressEnter()
   await setup.waitForFrame(() => submitted === 1 && !setup.renderer.root.findDescendantById("welcome-wordmark"))
-  expect(setup.captureCharFrame()).not.toContain(logo.left[0])
+  expect(setup.captureCharFrame()).not.toContain(wordmark[0].trim())
   await setup.mockInput.pressKey("F6")
   await setup.waitForFrame(
-    (frame) => frame.includes(logo.left[0]) && setup.renderer.currentFocusedRenderable instanceof TextareaRenderable,
+    (frame) =>
+      frame.includes(wordmark[0].trim()) && setup.renderer.currentFocusedRenderable instanceof TextareaRenderable,
   )
   expect(setup.renderer.root.findDescendantById("welcome-wordmark")).toBeDefined()
   expect(submitted).toBe(1)

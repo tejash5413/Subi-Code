@@ -633,11 +633,11 @@ export class ManagedSessionController {
 export function modelCapabilityLabel(capabilities: {
   agentTerminal?: string;
   agentVerify?: string;
-}): 'Verification ✓' | 'Terminal only' | 'Verification unavailable' | 'File tools only' {
+}): 'Verification ✓' | 'Terminal tested' | 'Verification unavailable' | 'Not live-tested' {
   if (capabilities.agentVerify === 'verified') return 'Verification ✓';
   if (capabilities.agentVerify === 'unsupported') return 'Verification unavailable';
-  if (capabilities.agentTerminal === 'verified') return 'Terminal only';
-  return 'File tools only';
+  if (capabilities.agentTerminal === 'verified') return 'Terminal tested';
+  return 'Not live-tested';
 }
 
 /**
@@ -686,6 +686,7 @@ export function toManagedWebviewState(
     models: state.models.map((m) => ({
       modelKey: m.modelKey,
       displayName: m.displayName,
+      ...(m.freeCoding === true ? {freeCoding:true} : {}),
       capabilities: {
         inputModalities: [...m.capabilities.inputModalities],
         outputModalities: [...m.capabilities.outputModalities],

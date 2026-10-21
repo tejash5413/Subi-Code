@@ -2,7 +2,7 @@
   "name": "subicode",
   "displayName": "SubiCode",
   "description": "SubiCode coding agent for VS Code",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publisher": "learnsmart",
   "homepage": "https://stlearnsmart.in/subi-code",
   "bugs": {

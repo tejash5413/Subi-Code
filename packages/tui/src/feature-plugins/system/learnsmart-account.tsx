@@ -6,6 +6,7 @@ import { useRenderer } from "@opentui/solid"
 import { openUrl } from "@opencode/util/open"
 import { LearnSmartLinks } from "@opencode/util/learnsmart"
 import { useTheme } from "../../context/theme"
+import { SidebarAccount } from "../sidebar/learnsmart-account"
 
 export function AccountPage(props: { context: Plugin.Context; onClose: () => void }) {
   const theme = useTheme()
@@ -223,6 +224,10 @@ function date(value: number | null | undefined) {
 export default Plugin.define({
   id: "subi.learnsmart.account",
   setup(context) {
+    context.ui.slot({
+      append: "sidebar.content",
+      render: (props) => <SidebarAccount context={context} sessionID={props.sessionID} />,
+    })
     const [previous, setPrevious] = createSignal({ ...context.ui.router.current() })
     context.ui.router.register({
       name: "account",

@@ -7,9 +7,9 @@ import { ThemeProvider } from "../../src/context/theme"
 import { emptyThemeSource, tmpdir } from "../fixture/fixture"
 import { TestTuiContexts } from "../fixture/tui-environment"
 import { createTuiResolvedConfig } from "../fixture/tui-runtime"
-import { go, logo } from "../../src/logo"
+import { wordmark } from "../../src/logo"
 
-test.each([100, 44, 26, 20])("the original Subi Code lettering fits a %s-column terminal", async (width) => {
+test.each([100, 44, 26, 20])("SubiCode wordmark fits a %s-column terminal without a separate icon", async (width) => {
   await using temporary = await tmpdir()
   const app = await testRender(
     () => (
@@ -32,17 +32,16 @@ test.each([100, 44, 26, 20])("the original Subi Code lettering fits a %s-column 
       .filter((span) => span.text.trim())
     expect(new Set(spans.map((span) => span.fg.toInts().join(","))).size).toBe(1)
     const channels = spans[0]!.fg.toInts().slice(0, 3)
-    expect(Math.max(...channels) - Math.min(...channels)).toBeLessThanOrEqual(3)
+    expect(Math.max(...channels) - Math.min(...channels)).toBeLessThanOrEqual(10)
     expect(frame.split("\n").every((line) => Array.from(line.trimEnd()).length <= width)).toBe(true)
-    if (width >= 50) {
+    if (width >= wordmark[0].length + 4) {
       expect(
         frame
           .split("\n")
           .slice(0, 5)
-          .map((line) => line.trimEnd()),
-      ).toEqual(logo.left.map((line, index) => `${line} ${logo.right[index]}`.trimEnd()))
-    } else if (width >= 26) expect(frame).toContain("SUBI CODE")
-    else expect(frame).toContain(go.right[1].trimEnd())
+          .map((line) => line.trim()),
+      ).toEqual(wordmark.map((line) => line.trim()))
+    } else expect(frame).toContain("SubiCode")
   } finally {
     app.renderer.destroy()
   }

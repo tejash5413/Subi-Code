@@ -56,8 +56,8 @@ node script/publish-subicode-npm.mjs artifacts/npm --publish
 ## Verify the public result
 
 ```sh
-npm view @subicodeagent/subi-cli@2.0.0 version --registry=https://registry.npmjs.org/
-npm install -g @subicodeagent/subi-cli@2.0.0
+npm view @subicodeagent/subi-cli@2.0.1 version --registry=https://registry.npmjs.org/
+npm install -g @subicodeagent/subi-cli@2.0.1
 subi --version
 subi mcp add --help
 ```

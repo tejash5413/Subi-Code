@@ -22,6 +22,7 @@ import { SplitBorder } from "../../ui/border"
 import { useTuiTerminalEnvironment } from "../../context/runtime"
 import { Spinner, SPINNER_FRAMES } from "../../component/spinner"
 import { PatchDiff } from "../../component/patch-diff"
+import { FilePreview } from "../../component/file-preview"
 import { useTheme, useThemes } from "../../context/theme"
 import {
   BoxRenderable,
@@ -3001,15 +3002,17 @@ function Write(props: ToolProps) {
           path={{ label: "# Wrote", value: pathFormatter.format(stringValue(props.input.path)) }}
           part={props.part}
         >
-          <line_number fg={theme.text.muted} minWidth={3} paddingRight={1}>
-            <code
-              conceal={false}
-              fg={theme.text.base}
-              filetype={filetype(stringValue(props.input.path))}
-              syntaxStyle={syntax()}
-              content={code()}
-            />
-          </line_number>
+          <FilePreview lines={code().split("\n").length}>
+            <line_number fg={theme.text.muted} minWidth={3} paddingRight={1}>
+              <code
+                conceal={false}
+                fg={theme.text.base}
+                filetype={filetype(stringValue(props.input.path))}
+                syntaxStyle={syntax()}
+                content={code()}
+              />
+            </line_number>
+          </FilePreview>
           <Diagnostics diagnostics={props.metadata.diagnostics} filePath={stringValue(props.input.path) ?? ""} />
         </BlockTool>
       </Match>
@@ -3298,28 +3301,30 @@ function Edit(props: ToolProps) {
       <Match when={file()}>
         {(item) => (
           <BlockTool path={{ label: "← Edit", value: pathFormatter.format(path()) }} part={props.part}>
-            <box paddingLeft={1}>
-              <PatchDiff
-                diff={item().patch}
-                hunkFg={theme.diff.text.hunkHeader}
-                view={view()}
-                filetype={filetype(path())}
-                syntaxStyle={syntax()}
-                showLineNumbers={true}
-                width="100%"
-                wrapMode={ctx.diffWrapMode()}
-                fg={theme.text.base}
-                addedBg={theme.diff.background.added}
-                removedBg={theme.diff.background.removed}
-                contextBg={theme.diff.background.context}
-                addedSignColor={theme.diff.highlight.added}
-                removedSignColor={theme.diff.highlight.removed}
-                lineNumberFg={theme.diff.lineNumber.text}
-                lineNumberBg={theme.diff.background.context}
-                addedLineNumberBg={theme.diff.lineNumber.background.added}
-                removedLineNumberBg={theme.diff.lineNumber.background.removed}
-              />
-            </box>
+            <FilePreview lines={item().patch.split("\n").length}>
+              <box paddingLeft={1}>
+                <PatchDiff
+                  diff={item().patch}
+                  hunkFg={theme.diff.text.hunkHeader}
+                  view={view()}
+                  filetype={filetype(path())}
+                  syntaxStyle={syntax()}
+                  showLineNumbers={true}
+                  width="100%"
+                  wrapMode={ctx.diffWrapMode()}
+                  fg={theme.text.base}
+                  addedBg={theme.diff.background.added}
+                  removedBg={theme.diff.background.removed}
+                  contextBg={theme.diff.background.context}
+                  addedSignColor={theme.diff.highlight.added}
+                  removedSignColor={theme.diff.highlight.removed}
+                  lineNumberFg={theme.diff.lineNumber.text}
+                  lineNumberBg={theme.diff.background.context}
+                  addedLineNumberBg={theme.diff.lineNumber.background.added}
+                  removedLineNumberBg={theme.diff.lineNumber.background.removed}
+                />
+              </box>
+            </FilePreview>
             <Diagnostics diagnostics={props.metadata.diagnostics} filePath={stringValue(props.input.path) ?? ""} />
           </BlockTool>
         )}
@@ -3388,28 +3393,30 @@ function ApplyPatch(props: ToolProps) {
                     </text>
                   }
                 >
-                  <box paddingLeft={1}>
-                    <PatchDiff
-                      diff={file.patch}
-                      hunkFg={theme.diff.text.hunkHeader}
-                      view={view()}
-                      filetype={filetype(file.relativePath)}
-                      syntaxStyle={syntax()}
-                      showLineNumbers={true}
-                      width="100%"
-                      wrapMode={ctx.diffWrapMode()}
-                      fg={theme.text.base}
-                      addedBg={theme.diff.background.added}
-                      removedBg={theme.diff.background.removed}
-                      contextBg={theme.diff.background.context}
-                      addedSignColor={theme.diff.highlight.added}
-                      removedSignColor={theme.diff.highlight.removed}
-                      lineNumberFg={theme.diff.lineNumber.text}
-                      lineNumberBg={theme.diff.background.context}
-                      addedLineNumberBg={theme.diff.lineNumber.background.added}
-                      removedLineNumberBg={theme.diff.lineNumber.background.removed}
-                    />
-                  </box>
+                  <FilePreview lines={file.patch.split("\n").length}>
+                    <box paddingLeft={1}>
+                      <PatchDiff
+                        diff={file.patch}
+                        hunkFg={theme.diff.text.hunkHeader}
+                        view={view()}
+                        filetype={filetype(file.relativePath)}
+                        syntaxStyle={syntax()}
+                        showLineNumbers={true}
+                        width="100%"
+                        wrapMode={ctx.diffWrapMode()}
+                        fg={theme.text.base}
+                        addedBg={theme.diff.background.added}
+                        removedBg={theme.diff.background.removed}
+                        contextBg={theme.diff.background.context}
+                        addedSignColor={theme.diff.highlight.added}
+                        removedSignColor={theme.diff.highlight.removed}
+                        lineNumberFg={theme.diff.lineNumber.text}
+                        lineNumberBg={theme.diff.background.context}
+                        addedLineNumberBg={theme.diff.lineNumber.background.added}
+                        removedLineNumberBg={theme.diff.lineNumber.background.removed}
+                      />
+                    </box>
+                  </FilePreview>
                 </Show>
               </BlockTool>
             )}
