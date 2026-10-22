@@ -5,11 +5,12 @@ import path from "node:path"
 
 const output = path.resolve(process.argv[2])
 const destination = path.resolve(process.argv[3])
+const desktopOnly = process.argv.includes("--desktop-only")
 const qualification = JSON.parse(await readFile(path.join(output, "packages/qualification.json"), "utf8"))
 assert.equal(qualification.version, "2.0.0")
 assert.equal(qualification.channel, "prod")
-assert.ok(!qualification.failure, "Qualification failed")
-for (const field of ["nativeExecution", "desktopExecution", "extensionExecution"])
+assert.ok(!qualification.failure || (desktopOnly && qualification.failure === "VS Code extension host qualification did not complete"), "Qualification failed")
+for (const field of desktopOnly ? ["nativeExecution", "desktopExecution"] : ["nativeExecution", "desktopExecution", "extensionExecution"])
   assert.match(qualification[field] ?? "", /^passed:/, `${field} must pass before download publication`)
 const [platform, arch] = qualification.platform.split("-")
 assert.ok(["win32", "darwin", "linux"].includes(platform) && ["x64", "arm64"].includes(arch))
@@ -19,7 +20,7 @@ const files = (await readdir(path.join(output, "desktop"))).filter(name =>
 )
 assert.ok(files.length > 0, "No installers found")
 const assets = files.map(name => ({ name, source: path.join(output, "desktop", name), product: "desktop" }))
-assets.push({ name: `subicode-${qualification.platform}.vsix`, source: path.join(output, `subicode-${qualification.platform}.vsix`), product: "vscode" })
+if (!desktopOnly) assets.push({ name: `subicode-${qualification.platform}.vsix`, source: path.join(output, `subicode-${qualification.platform}.vsix`), product: "vscode" })
 const downloads = await Promise.all(assets.map(async item => {
   const bytes = await readFile(item.source)
   await copyFile(item.source, path.join(destination, item.name))
@@ -36,6 +37,7 @@ await writeFile(path.join(destination, `downloads-${qualification.platform}.json
   nativeExecution: qualification.nativeExecution,
   desktopExecution: qualification.desktopExecution,
   extensionExecution: qualification.extensionExecution,
+  ...(desktopOnly ? { productSelection: "desktop", extensionFailure: qualification.failure } : {}),
   downloads,
 }, null, 2) + "\n")
 console.log(`Prepared ${downloads.length} qualified downloads for ${qualification.platform}`)

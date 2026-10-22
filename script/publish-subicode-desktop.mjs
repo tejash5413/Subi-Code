@@ -11,17 +11,21 @@ assert.ok(platforms.length > 0 && platforms.every(item => supported.includes(ite
 assert.equal(new Set(platforms).size, platforms.length)
 const repo = "tejash5413/Subi-Code"
 const assets = []
+const desktopOnly = process.argv.includes("--desktop-only")
 const commits = new Set()
 const names = new Set()
 for (const platform of platforms) {
   const directory = path.join(root, `subicode-downloads-${platform}`)
   const record = JSON.parse(await readFile(path.join(directory, `downloads-${platform}.json`), "utf8"))
-  for (const field of ["nativeExecution", "desktopExecution", "extensionExecution"])
+  for (const field of desktopOnly ? ["nativeExecution", "desktopExecution"] : ["nativeExecution", "desktopExecution", "extensionExecution"])
     assert.match(record[field] ?? "", /^passed:/, `${platform}: ${field} missing`)
   assert.match(record.sourceCommit, /^[a-f0-9]{40}$/)
   commits.add(record.sourceCommit)
   assert.ok(record.downloads.some(item => item.product === "desktop"))
-  assert.ok(record.downloads.some(item => item.product === "vscode"))
+  if (desktopOnly) {
+    assert.equal(record.productSelection, "desktop")
+    assert.ok(record.downloads.every(item => item.product === "desktop"), "Desktop-only publication cannot include a VSIX")
+  } else assert.ok(record.downloads.some(item => item.product === "vscode"))
   for (const item of record.downloads) {
     assert.equal(`${item.platform}-${item.arch}`, platform)
     assert.equal(item.version, "2.0.0")
@@ -47,7 +51,7 @@ const manifestFile = path.join(root, "subicode-release.json")
 const checksumFile = path.join(root, "SHA256SUMS.txt")
 await writeFile(manifestFile, JSON.stringify(manifest, null, 2) + "\n")
 await writeFile(checksumFile, assets.map(({ download }) => `${download.sha256}  ${download.filename}`).join("\n") + "\n")
-console.log(`Verified ${assets.length} desktop and VSIX downloads across ${platforms.length} native platforms`)
+console.log(`Verified ${assets.length} ${desktopOnly ? "desktop" : "desktop and VSIX"} downloads across ${platforms.length} native platforms`)
 if (!process.argv.includes("--publish")) {
   console.log(`Preflight only: ${manifestFile}`)
   process.exit(0)
@@ -83,7 +87,7 @@ const notes = path.join(root, "release-notes.md")
 await writeFile(notes, `SubiCode 2.0.0 provides the terminal CLI, desktop app and VS Code extension.\n\n` +
   `CLI: \`npm install -g @subicodeagent/subi-cli@2.0.0\` (Node.js 22+). npm selects Windows, macOS or glibc Linux on x64 or ARM64.\n\n` +
   `Desktop: choose the installer for your system and processor. Windows uses .exe, macOS .dmg or .zip, Linux AppImage, .deb or .rpm. Install extensions using VS Code's Install from VSIX command.\n\n` +
-  `Verified desktop/extension targets: ${[...new Set(manifest.downloads.map(item => `${item.platform}-${item.arch}`))].join(", ")}. Checks cover startup, Plan/Build, settings, MCP form, plugin/skill setup and terminal reuse. Other desktop targets remain unavailable until their native checks pass. Desktop source: ${source}.\n\n` +
+  `Verified desktop targets: ${[...new Set(manifest.downloads.filter(item => item.product === "desktop").map(item => `${item.platform}-${item.arch}`))].join(", ")}. Desktop checks cover startup, Plan/Build, settings, MCP form and plugin/skill setup. Verified VS Code extension targets: ${[...new Set(manifest.downloads.filter(item => item.product === "vscode").map(item => `${item.platform}-${item.arch}`))].join(", ")}. Extension checks cover bundled CLI startup and terminal reuse. Other product/processor combinations remain unavailable until their own native checks pass. Desktop source: ${source}.\n\n` +
   `These desktop installers are unsigned; macOS builds are not notarized. Operating-system publisher checks may require manual approval. SHA256SUMS.txt lists every download's checksum.\n\n` +
   `Account/provider access, billing and mobile pairing require their own live-service checks and are not qualified by these packaging tests.\n\n` +
   `Guides: https://stlearnsmart.in/subi-code/docs\n`)

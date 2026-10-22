@@ -53,6 +53,15 @@ installer bytes cannot be overwritten. Each addition refreshes the combined
 qualified targets in the release notes. Unsigned/not-notarized limitations
 remain explicit. npm CLI availability is independent of desktop availability.
 
+When desktop qualification passed but the separate VS Code extension host did
+not finish, `prepare-desktop-downloads.mjs` and `publish-subicode-desktop.mjs`
+accept `--desktop-only`. This explicit mode still requires the production
+channel, matching source, native CLI and desktop checks, sizes and checksums.
+It only accepts the recorded extension-host incomplete stage and never includes
+a VSIX. Default publication continues to require both products' checks.
+Release notes list desktop and extension targets separately. Use this mode only
+with the unchanged installer files from the matching native build artifact.
+
 See [Windows publisher signing](WINDOWS_SIGNING.md) for the signing identity,
 build integration, signature verification and publication requirements. The
 current public installers remain unsigned until a verified signing identity
