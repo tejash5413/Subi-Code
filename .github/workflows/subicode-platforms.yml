@@ -21,6 +21,11 @@ on:
         description: Comma-separated qualified desktop targets to publish (blank means all six)
         required: false
         default: ""
+      desktop_only:
+        description: Qualify and publish desktop independently of VS Code extension-host completion
+        type: boolean
+        required: false
+        default: false
       posix_only:
         description: Requalify macOS and Linux targets only
         type: boolean
@@ -103,10 +108,12 @@ jobs:
         run: bun run compile-tests
       - name: Qualify packaged desktop and extension on Linux
         if: runner.os == 'Linux'
+        continue-on-error: ${{ inputs.desktop_only }}
         timeout-minutes: 12
         run: xvfb-run -a node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
       - name: Qualify packaged desktop and extension on Windows and macOS
         if: runner.os != 'Linux'
+        continue-on-error: ${{ inputs.desktop_only }}
         timeout-minutes: 12
         run: node packages/desktop/scripts/qualify-distribution.mjs "$SUBICODE_OUTPUT"
       - name: Save packages and qualification status
@@ -129,7 +136,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Prepare qualified public download files
-        run: node script/prepare-desktop-downloads.mjs "$SUBICODE_OUTPUT" "artifacts/downloads/${{ matrix.platform }}"
+        run: node script/prepare-desktop-downloads.mjs "$SUBICODE_OUTPUT" "artifacts/downloads/${{ matrix.platform }}" ${{ inputs.desktop_only && '--desktop-only' || '' }}
       - name: Save qualified public download files
         uses: actions/upload-artifact@v4
         with:
@@ -156,4 +163,4 @@ jobs:
       - name: Download qualified desktop and extension releases
         run: gh run download "${{ inputs.publish_run_id }}" --repo "$GITHUB_REPOSITORY" --pattern 'subicode-downloads-*' --dir artifacts/downloads
       - name: Verify all six platforms and publish release files
-        run: node script/publish-subicode-desktop.mjs artifacts/downloads --publish
+        run: node script/publish-subicode-desktop.mjs artifacts/downloads --publish ${{ inputs.desktop_only && '--desktop-only' || '' }}

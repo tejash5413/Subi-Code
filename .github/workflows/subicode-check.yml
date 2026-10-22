@@ -40,4 +40,4 @@ jobs:
         run: bun test --timeout 60000 test/mcp-auth-choices.test.ts
       - name: VS Code CLI layout compatibility
         working-directory: packages/desktop
-        run: node --test scripts/vscode-cli.test.mjs scripts/desktop-downloads.test.mjs
+        run: node --test scripts/vscode-cli.test.mjs scripts/desktop-downloads.test.mjs ../../script/desktop-downloads.test.mjs

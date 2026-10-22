@@ -61,6 +61,12 @@ It only accepts the recorded extension-host incomplete stage and never includes
 a VSIX. Default publication continues to require both products' checks.
 Release notes list desktop and extension targets separately. Use this mode only
 with the unchanged installer files from the matching native build artifact.
+The native workflow exposes this as `desktop_only`; use the same selection for
+building and publishing. A failed desktop or native CLI check still blocks the
+download preparation step. Both download scripts read the release version from
+`sdks/npm/package.json`, so 2.0.1 creates `v2.0.1` URLs without changing 2.0.0 assets.
+Publish and verify all seven npm CLI packages before publishing the desktop
+manifest that advertises that CLI version.
 
 See [Windows publisher signing](WINDOWS_SIGNING.md) for the signing identity,
 build integration, signature verification and publication requirements. The

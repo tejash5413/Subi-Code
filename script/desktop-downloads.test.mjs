@@ -11,7 +11,8 @@ const scripts = path.dirname(fileURLToPath(import.meta.url))
 test("desktop publication checks each product without releasing an unverified extension", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "subi-download-contract-"))
   try {
-    for (const [name, desktopOnly, desktop, extension, failure, accepted] of [
+    for (const [name, desktopOnly, desktop, extension, failure, accepted, version = "2.0.1"] of [
+      ["stale-version", false, "passed: startup", "passed: terminal reuse", undefined, false, "2.0.0"],
       ["complete", false, "passed: startup", "passed: terminal reuse", undefined, true],
       ["pending-extension", false, "passed: startup", undefined, "VS Code extension host qualification did not complete", false],
       ["desktop-only", true, "passed: startup", undefined, "VS Code extension host qualification did not complete", true],
@@ -26,7 +27,7 @@ test("desktop publication checks each product without releasing an unverified ex
       await writeFile(path.join(source, "desktop/subi-desktop-mac-x64.dmg"), "installer fixture")
       await writeFile(path.join(source, "subicode-darwin-x64.vsix"), "extension fixture")
       await writeFile(path.join(source, "packages/qualification.json"), JSON.stringify({
-        version: "2.0.0", channel: "prod", platform: "darwin-x64",
+        version, channel: "prod", platform: "darwin-x64",
         nativeExecution: "passed: native version", desktopExecution: desktop,
         extensionExecution: extension, failure, npm: { sourceCommit: "a".repeat(40) },
       }))

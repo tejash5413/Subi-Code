@@ -6,8 +6,9 @@ import path from "node:path"
 const output = path.resolve(process.argv[2])
 const destination = path.resolve(process.argv[3])
 const desktopOnly = process.argv.includes("--desktop-only")
+const { version } = JSON.parse(await readFile(new URL("../sdks/npm/package.json", import.meta.url), "utf8"))
 const qualification = JSON.parse(await readFile(path.join(output, "packages/qualification.json"), "utf8"))
-assert.equal(qualification.version, "2.0.0")
+assert.equal(qualification.version, version)
 assert.equal(qualification.channel, "prod")
 assert.ok(!qualification.failure || (desktopOnly && qualification.failure === "VS Code extension host qualification did not complete"), "Qualification failed")
 for (const field of desktopOnly ? ["nativeExecution", "desktopExecution"] : ["nativeExecution", "desktopExecution", "extensionExecution"])
@@ -25,10 +26,10 @@ const downloads = await Promise.all(assets.map(async item => {
   const bytes = await readFile(item.source)
   await copyFile(item.source, path.join(destination, item.name))
   return {
-    product: item.product, platform, arch, version: "2.0.0", filename: item.name,
+    product: item.product, platform, arch, version, filename: item.name,
     format: path.extname(item.name).slice(1), size: bytes.length,
     sha256: createHash("sha256").update(bytes).digest("hex"),
-    url: `https://github.com/tejash5413/Subi-Code/releases/download/v2.0.0/${item.name}`,
+    url: `https://github.com/tejash5413/Subi-Code/releases/download/v${version}/${item.name}`,
     signed: false,
   }
 }))

@@ -112,7 +112,7 @@
     },
     "packages/cli": {
       "name": "@opencode/cli",
-      "version": "2.0.32",
+      "version": "2.0.1",
       "bin": {
         "opencode": "./bin/opencode.cjs",
         "opencode2": "./bin/opencode2.cjs",
@@ -340,7 +340,7 @@
     },
     "packages/desktop": {
       "name": "@opencode/desktop",
-      "version": "2.0.32",
+      "version": "2.0.1",
       "dependencies": {
         "@opencode/util": "workspace:*",
         "@zip.js/zip.js": "2.7.62",
