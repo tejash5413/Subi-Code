@@ -145,10 +145,11 @@ try {
   const mode = page.getByRole("button", { name: "Choose agent", exact: true })
   await expect(mode).toBeVisible()
   await mode.click()
-  await page.getByRole("menuitemradio", { name: "plan", exact: true }).click()
+  // Keyboard activation avoids waiting for the animated popup's pointer geometry on CI.
+  await page.getByRole("menuitemradio", { name: "plan", exact: true }).press("Enter")
   await expect(mode).toHaveText("plan")
   await mode.click()
-  await page.getByRole("menuitemradio", { name: "build", exact: true }).click()
+  await page.getByRole("menuitemradio", { name: "build", exact: true }).press("Enter")
   await expect(mode).toHaveText("build")
   await page.keyboard.press(process.platform === "darwin" ? "Meta+," : "Control+,")
   const settings = page.getByTestId("settings-screen")

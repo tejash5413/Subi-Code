@@ -26,6 +26,11 @@ on:
         type: boolean
         required: false
         default: false
+      windows_x64_only:
+        description: Requalify only the Windows x64 candidate
+        type: boolean
+        required: false
+        default: false
       posix_only:
         description: Requalify macOS and Linux targets only
         type: boolean
@@ -42,7 +47,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: native-${{ github.ref }}-${{ inputs.publish_run_id && 'publish' || 'qualify' }}
+  group: native-${{ github.ref }}-${{ inputs.publish_run_id && 'publish' || inputs.qualification_run_id || 'qualify' }}
   cancel-in-progress: true
 
 jobs:
@@ -52,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(inputs.macos_only && '[{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]' || inputs.posix_only && '[{"platform":"linux-x64","runner":"ubuntu-24.04"},{"platform":"linux-arm64","runner":"ubuntu-24.04-arm"},{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]' || '[{"platform":"win32-x64","runner":"windows-2025"},{"platform":"win32-arm64","runner":"windows-11-arm"},{"platform":"linux-x64","runner":"ubuntu-24.04"},{"platform":"linux-arm64","runner":"ubuntu-24.04-arm"},{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]') }}
+        include: ${{ fromJSON(inputs.windows_x64_only && '[{"platform":"win32-x64","runner":"windows-2025"}]' || inputs.macos_only && '[{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]' || inputs.posix_only && '[{"platform":"linux-x64","runner":"ubuntu-24.04"},{"platform":"linux-arm64","runner":"ubuntu-24.04-arm"},{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]' || '[{"platform":"win32-x64","runner":"windows-2025"},{"platform":"win32-arm64","runner":"windows-11-arm"},{"platform":"linux-x64","runner":"ubuntu-24.04"},{"platform":"linux-arm64","runner":"ubuntu-24.04-arm"},{"platform":"darwin-x64","runner":"macos-15-intel"},{"platform":"darwin-arm64","runner":"macos-15"}]') }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     defaults:
