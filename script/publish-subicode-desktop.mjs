@@ -66,11 +66,12 @@ function gh(args) {
   return result.stdout
 }
 const source = [...commits][0]
-const releases = JSON.parse(gh(["release", "list", "--json", "tagName,isDraft", "--limit", "100"]))
-const existing = releases.find(item => item.tagName === tag)
-let remote
+// The by-tag REST endpoint hides draft releases. The authenticated list includes
+// their asset records, so a failed upload can resume before publication.
+const releases = JSON.parse(gh(["api", `repos/${repo}/releases?per_page=100`]))
+const existing = releases.find(item => item.tag_name === tag)
+const remote = existing
 if (existing) {
-  remote = JSON.parse(gh(["api", `repos/${repo}/releases/tags/${tag}`]))
   if (remote.assets.some(item => item.name === "subicode-release.json")) {
     const previous = path.join(root, "previous")
     await mkdir(previous, { recursive: true })
