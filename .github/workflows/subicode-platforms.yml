@@ -17,6 +17,10 @@ on:
         description: Publish qualified public download artifacts from this completed run
         required: false
         default: ""
+      publish_extra_run_id:
+        description: Optional requalification run supplying additional downloads for the same built source
+        required: false
+        default: ""
       publish_platforms:
         description: Comma-separated qualified desktop targets to publish (blank means all six)
         required: false
@@ -167,5 +171,8 @@ jobs:
           node-version: 22
       - name: Download qualified desktop and extension releases
         run: gh run download "${{ inputs.publish_run_id }}" --repo "$GITHUB_REPOSITORY" --pattern 'subicode-downloads-*' --dir artifacts/downloads
+      - name: Download additional qualified targets
+        if: ${{ inputs.publish_extra_run_id }}
+        run: gh run download "${{ inputs.publish_extra_run_id }}" --repo "$GITHUB_REPOSITORY" --pattern 'subicode-downloads-*' --dir artifacts/downloads
       - name: Verify all six platforms and publish release files
         run: node script/publish-subicode-desktop.mjs artifacts/downloads --publish ${{ inputs.desktop_only && '--desktop-only' || '' }}

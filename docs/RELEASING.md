@@ -67,6 +67,9 @@ download preparation step. Both download scripts read the release version from
 `sdks/npm/package.json`, so 2.0.1 creates `v2.0.1` URLs without changing 2.0.0 assets.
 Publish and verify all seven npm CLI packages before publishing the desktop
 manifest that advertises that CLI version.
+If one unchanged native candidate needed a separate qualification run, supply
+that run as `publish_extra_run_id`. The publisher still requires all selected
+targets to carry the same built source revision, version and matching digests.
 
 See [Windows publisher signing](WINDOWS_SIGNING.md) for the signing identity,
 build integration, signature verification and publication requirements. The
